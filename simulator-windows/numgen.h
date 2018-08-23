@@ -11,9 +11,9 @@ SC_MODULE(numgen) {
 	sc_in<bool> clock;
 	sc_in<bool> clock_1;
 	sc_out<int> signal_out;
-	sc_out<float> output[INPUT_SIZE];
+	sc_out<float> output[INPUT_SIZE*CHANNELS];
 
-	float img_data[IMAGE_SIZE][IMAGE_SIZE];
+	float img_data[IMAGE_SIZE][IMAGE_SIZE][CHANNELS];
 	
 	// generate data
 	void generate_data() {
@@ -24,7 +24,9 @@ SC_MODULE(numgen) {
 				// read data from file
 				//img_data[j] = new float[IMAGE_SIZE];
 				for (int k = 0; k < IMAGE_SIZE; k++){
-					img_data[j][k] = j*IMAGE_SIZE+k;
+					for (int s = 0; s < CHANNELS; s++) {
+						img_data[j][k][s] = j * IMAGE_SIZE + k;
+					}
 				}
 			}
 			counter++;
@@ -35,28 +37,34 @@ SC_MODULE(numgen) {
 	void send_data() {
 		static int x = 0;
 		static int y = 0;
-		float tmp_data[KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
+		float tmp_data[KERNEL_SIZE][KERNEL_SIZE][CHANNELS] = { 0.0 };
 		int tmp_x = 0;
 		int tmp_y = 0;
-		for (int i = x - 1; i < x + 2; i++){
+		for (int i = x - 1; i < x + 2; i++) {
 			if (i < 0 || i == IMAGE_SIZE) {
 				tmp_x++;
 				continue;
 			}
-			for (int j = y - 1; j < y + 2; j++){
+			for (int j = y - 1; j < y + 2; j++) {
 				if (j < 0 || j == IMAGE_SIZE) {
 					tmp_y++;
 					continue;
 				}
-				tmp_data[tmp_x][tmp_y] = img_data[i][j];
+				for (int k = 0; k < CHANNELS; k++) {
+					tmp_data[tmp_x][tmp_y][k] = img_data[i][j][k];
+				}
 				tmp_y++;
 			}
 			tmp_x++;
 			tmp_y = 0;
 		}
-		for (int i = 0; i < KERNEL_SIZE; i++){
-			for (int j = 0; j < KERNEL_SIZE; j++) {
-				output[i*KERNEL_SIZE + j].write(tmp_data[i][j]);
+		// first channel in first input_size position
+		// second channel in second input_size position
+		for (int k = 0; k < CHANNELS; k++){
+			for (int i = 0; i < KERNEL_SIZE; i++) {
+				for (int j = 0; j < KERNEL_SIZE; j++) {
+					output[k*INPUT_SIZE + i*KERNEL_SIZE + j].write(tmp_data[i][j][k]);
+				}
 			}
 		}
 		

@@ -15,13 +15,13 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<int> signal_2;
 	// int signal_counter = 0;
 
-	sc_signal<float> buffer[INPUT_SIZE];
+	sc_signal<float> send_data1[INPUT_SIZE*CHANNELS];
 	sc_signal<float> conv_out[CROSSBAR_W];
 	
 	// number generator
 	numgen Num_gen("number_generator");
-	for (int j = 0; j < INPUT_SIZE; j++){
-		Num_gen.output[j](buffer[j]);
+	for (int j = 0; j < INPUT_SIZE*CHANNELS; j++){
+		Num_gen.output[j](send_data1[j]);
 	}
 	Num_gen.clock(clock);
 	Num_gen.clock_1(clock_1);
@@ -29,8 +29,8 @@ int sc_main(int argc, char* argv[]) {
 
 	// convolution module
 	stage_conv Conv("conv_module");
-	for (int j = 0; j < INPUT_SIZE; j++) {
-		Conv.input[j](buffer[j]);
+	for (int j = 0; j < INPUT_SIZE*CHANNELS; j++) {
+		Conv.input[j](send_data1[j]);
 	}
 	for (int j = 0; j < CROSSBAR_W; j++) {
 		Conv.output[j](conv_out[j]);
@@ -62,9 +62,9 @@ int sc_main(int argc, char* argv[]) {
 		sc_start(SIMULATE_DURATION, SC_NS);
 		//clock.write(1);
 		for (int j = 0; j < IMAGE_SIZE*IMAGE_SIZE; j++) {
-			clock_1.write(1);
+			clock_1.write(1); // run tiles
 			sc_start(SIMULATE_DURATION, SC_NS);
-			clock_1.write(0);
+			clock_1.write(0); // send data to next layer
 			sc_start(SIMULATE_DURATION, SC_NS);
 		}
 		

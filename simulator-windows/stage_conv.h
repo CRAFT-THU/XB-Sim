@@ -7,7 +7,7 @@
 using namespace std;
 
 SC_MODULE(stage_conv) {
-	sc_in<float> input[INPUT_SIZE];
+	sc_in<float> input[INPUT_SIZE*CHANNELS];
 	sc_out<float> output[CROSSBAR_W];
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
@@ -33,7 +33,8 @@ SC_MODULE(stage_conv) {
 		}*/
 		float tmp_input[CROSSBAR_L] = { 0.0 };
 		float tmp_output[CROSSBAR_W] = { 0.0 };
-		for (int i = 0; i < INPUT_SIZE; i++){
+		// read data from former layer
+		for (int i = 0; i < INPUT_SIZE*CHANNELS; i++){
 			tmp_input[i] = input[i].read();
 		}
 		cb.run(tmp_input, tmp_output);
