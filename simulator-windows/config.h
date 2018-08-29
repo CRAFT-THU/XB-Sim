@@ -7,7 +7,7 @@
 #define AD_WIDTH 8			//AD输出数据宽度
 #define CROSSBAR_L 1152		//crossbar长度
 #define CROSSBAR_W 128		//crossbar宽度
-#define CROSSBAR_N 1		//crossbar个数
+#define CROSSBAR_N 4		//crossbar个数 in one tile
 #define AD_REUSE_NUM 32		//AD复用
 #define XB01_I 0.00492679327726364
 #define XB2_I 0.00398490577936172
@@ -21,6 +21,10 @@
 #define IMAGE_SIZE 32		// input picture size
 #define SIMULATE_DURATION 400	//simulation duration, in nanoseconds
 #define ALL_SIGNALS	2
+
+#define INPUT_LINEAR_1 128 // linear layer 1 input size
+#define INPUT_LINEAR_2 128 // linear layer 1 output size and linear layer 2 input size
+#define	OUTPUT_LINEAR 10 // 10 classifier result
 
 #endif // !_CONFIG_H
 

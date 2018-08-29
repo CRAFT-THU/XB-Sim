@@ -1,14 +1,14 @@
-#ifndef _STAGE_CONV
-#define _STAGE_CONV
+#ifndef _STAGE_LINEAR
+#define _STAGE_LINEAR
 
 #include "crossbar.h"
 #include "systemc.h"
 
 using namespace std;
 
-SC_MODULE(stage_conv) {
-	sc_in<float> input[INPUT_SIZE*CHANNELS];
-	sc_out<float> output[CROSSBAR_W];
+SC_MODULE(stage_linear) {
+	sc_in<float> input[INPUT_LINEAR_1];
+	sc_out<float> output[INPUT_LINEAR_2];
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 
@@ -17,8 +17,8 @@ SC_MODULE(stage_conv) {
 	// read crossbar data from file
 	void init_crossbar() {
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
-		for (int i = 0; i < CROSSBAR_L; i++){
-			for (int j = 0; j < CROSSBAR_W; j++){
+		for (int i = 0; i < CROSSBAR_L; i++) {
+			for (int j = 0; j < CROSSBAR_W; j++) {
 				cell[i*CROSSBAR_W + j] = i * CROSSBAR_W + j;
 			}
 		}
@@ -26,38 +26,33 @@ SC_MODULE(stage_conv) {
 		delete[] cell;
 	}
 
-	// do maxpooling
-	void max_pooling() {
-		int pooling_size = 1;
-	}
-
-	// run convolution
-	void stage_conv_run() {
+	// run matrix multiply
+	void stage_linear_run() {
 		
 		float tmp_input[CROSSBAR_L] = { 0.0 };
 		float tmp_output[CROSSBAR_W] = { 0.0 };
 		// read data from former layer
-		for (int i = 0; i < INPUT_SIZE*CHANNELS; i++){
-			tmp_input[CROSSBAR_L-1-i] = input[INPUT_SIZE*CHANNELS-1-i].read();
+		for (int i = 0; i < INPUT_LINEAR_1; i++) {
+			tmp_input[CROSSBAR_L-1-i] = input[INPUT_LINEAR_1-1-i].read();
 		}
 		cb.run(tmp_input, tmp_output);
-		for (int i = 0; i < CROSSBAR_W; i++){
+		for (int i = 0; i < CROSSBAR_W; i++) {
 			output[i].write(tmp_output[i]);
 		}
 		signal_out.write(signal_in.read());
 	}
 
-	SC_CTOR(stage_conv) {
+	SC_CTOR(stage_linear) {
 		init_crossbar();
 
-		SC_METHOD(stage_conv_run);
+		SC_METHOD(stage_linear_run);
 		sensitive << signal_in;
 		dont_initialize();
 	}
 
-	~stage_conv() {
+	~stage_linear() {
 		cb.free_space();
 	}
 };
 
-#endif // !_STAGE_CONV
+#endif // !_STAGE_LINEAR
