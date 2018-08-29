@@ -69,7 +69,7 @@ SC_MODULE(stage_buffer) {
 			// write to signal
 			for (int k = 0; k < KERNEL_SIZE; k++)
 				for (int j = 0; j < KERNEL_SIZE; j++)
-					output[i][k*KERNEL_SIZE + j].write(tmp_data[j][k]);
+					output[i][k*KERNEL_SIZE + j].write(tmp_data[k][j]);
 		}
 
 		signal_out.write(signal_in.read());
@@ -112,9 +112,9 @@ SC_MODULE(stage_buffer) {
 		sensitive << signal_in;
 		dont_initialize();
 
-		SC_METHOD(send_to_next_layer);
+		/*SC_METHOD(send_to_next_layer);
 		sensitive << clock_1.neg();
-		dont_initialize();
+		dont_initialize();*/
 	}
 };
 

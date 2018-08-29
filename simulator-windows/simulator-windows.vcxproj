@@ -136,11 +136,12 @@
     <ClInclude Include="crossbar.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="hello.h" />
+    <ClInclude Include="linear_buffer_2.h" />
     <ClInclude Include="numgen.h" />
     <ClInclude Include="stage_buffer.h" />
     <ClInclude Include="stage_conv.h" />
-    <ClInclude Include="stage_linear.h" />
-    <ClInclude Include="stage_linear_buffer.h" />
+    <ClInclude Include="stage_linear_1.h" />
+    <ClInclude Include="linear_buffer_1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

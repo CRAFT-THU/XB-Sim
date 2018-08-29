@@ -26,6 +26,11 @@ SC_MODULE(stage_conv) {
 		delete[] cell;
 	}
 
+	// activation function default relu
+	void activation() {
+
+	}
+
 	// do maxpooling
 	void max_pooling() {
 		int pooling_size = 1;
@@ -38,9 +43,11 @@ SC_MODULE(stage_conv) {
 		float tmp_output[CROSSBAR_W] = { 0.0 };
 		// read data from former layer
 		for (int i = 0; i < INPUT_SIZE*CHANNELS; i++){
-			tmp_input[CROSSBAR_L-1-i] = input[INPUT_SIZE*CHANNELS-1-i].read();
+			tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS + i] = input[i].read();
 		}
 		cb.run(tmp_input, tmp_output);
+		activation();
+		max_pooling();
 		for (int i = 0; i < CROSSBAR_W; i++){
 			output[i].write(tmp_output[i]);
 		}
