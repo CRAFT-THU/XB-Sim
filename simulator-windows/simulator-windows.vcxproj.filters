@@ -59,5 +59,41 @@
     <ClInclude Include="stage_conv_3.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="stage_conv_4.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_6.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_7.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_8.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_9.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_10.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_11.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_13.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_14.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_15.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
