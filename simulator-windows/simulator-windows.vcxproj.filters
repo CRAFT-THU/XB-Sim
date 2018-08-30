@@ -35,9 +35,6 @@
     <ClInclude Include="crossbar.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stage_conv.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stage_buffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -48,6 +45,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stage_linear_1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_linear_2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_conv_3.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

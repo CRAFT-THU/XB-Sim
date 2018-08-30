@@ -139,9 +139,12 @@
     <ClInclude Include="linear_buffer_2.h" />
     <ClInclude Include="numgen.h" />
     <ClInclude Include="stage_buffer.h" />
-    <ClInclude Include="stage_conv.h" />
+    <ClInclude Include="stage_conv_1.h" />
+    <ClInclude Include="stage_conv_2.h" />
+    <ClInclude Include="stage_conv_3.h" />
     <ClInclude Include="stage_linear_1.h" />
     <ClInclude Include="linear_buffer_1.h" />
+    <ClInclude Include="stage_linear_2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

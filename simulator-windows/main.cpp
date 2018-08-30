@@ -1,7 +1,7 @@
 #include "systemc.h"
 #include "config.h"
 #include "numgen.h"
-#include "stage_conv.h"
+#include "stage_conv_1.h"
 #include "stage_buffer.h"
 #include "display.h"
 

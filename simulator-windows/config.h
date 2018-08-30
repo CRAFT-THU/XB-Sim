@@ -16,7 +16,7 @@
 #define KERNEL_SIZE 3
 //输入8bit数据个数, a convolution block
 #define INPUT_SIZE KERNEL_SIZE*KERNEL_SIZE	
-#define CHANNELS 2			// each input picture channels
+#define CHANNELS_3 3		// each input picture channels
 #define PICTURE_NUM	1		// number of input pictures
 #define IMAGE_SIZE 32		// input picture size
 #define SIMULATE_DURATION 400	//simulation duration, in nanoseconds
@@ -26,5 +26,9 @@
 #define INPUT_LINEAR_2 128 // linear layer 1 output size and linear layer 2 input size
 #define	OUTPUT_LINEAR 10 // 10 classifier result
 
+#define CHANNELS_32 32
+#define CHANNELS_48 48
+#define CHANNELS_80 80
+#define CHANNELS_128 128
 #endif // !_CONFIG_H
 

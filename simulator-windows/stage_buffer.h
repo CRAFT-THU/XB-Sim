@@ -28,59 +28,60 @@ SC_MODULE(stage_buffer) {
 	}
 
 	void send_to_next_layer() {
+		if (begin && ready_num > 0) {
+			// for one conv crossbar
+			for (int i = 0; i < CHANNELS; i++) {
+				float tmp_data[KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
 
-		// for one conv crossbar
-		for (int i = 0; i < CHANNELS; i++) {
-			float tmp_data[KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
-			 
-			if (total < IMAGE_SIZE) { // first row in picture, need padding
-				int x = out_current / IMAGE_SIZE; // row number in buffer
-				int y = out_current % IMAGE_SIZE; // column number in bufer
-				for (int j = 1; j < KERNEL_SIZE; j++){
-					for (int k = 0; k < KERNEL_SIZE; k++){
-						if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
-							continue;
-						tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+				if (total < IMAGE_SIZE) { // first row in picture, need padding
+					int x = out_current / IMAGE_SIZE; // row number in buffer
+					int y = out_current % IMAGE_SIZE; // column number in bufer
+					for (int j = 1; j < KERNEL_SIZE; j++) {
+						for (int k = 0; k < KERNEL_SIZE; k++) {
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
+								continue;
+							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+						}
 					}
 				}
-			}
-			else if (total >= IMAGE_SIZE * (IMAGE_SIZE - 1)) { // last row in picture
-				int x = out_current / IMAGE_SIZE; // row number in buffer
-				int y = out_current % IMAGE_SIZE; // column number in bufer
-				for (int j = 0; j < KERNEL_SIZE - 1; j++) {
-					for (int k = 0; k < KERNEL_SIZE; k++) {
-						if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
-							continue;
-						tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+				else if (total >= IMAGE_SIZE * (IMAGE_SIZE - 1)) { // last row in picture
+					int x = out_current / IMAGE_SIZE; // row number in buffer
+					int y = out_current % IMAGE_SIZE; // column number in bufer
+					for (int j = 0; j < KERNEL_SIZE - 1; j++) {
+						for (int k = 0; k < KERNEL_SIZE; k++) {
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
+								continue;
+							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+						}
 					}
 				}
-			}
-			else {
-				int x = out_current / IMAGE_SIZE; // row number in buffer
-				int y = out_current % IMAGE_SIZE; // column number in bufer
-				for (int j = 0; j < KERNEL_SIZE; j++) {
-					for (int k = 0; k < KERNEL_SIZE; k++) {
-						if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
-							continue;
-						tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+				else {
+					int x = out_current / IMAGE_SIZE; // row number in buffer
+					int y = out_current % IMAGE_SIZE; // column number in bufer
+					for (int j = 0; j < KERNEL_SIZE; j++) {
+						for (int k = 0; k < KERNEL_SIZE; k++) {
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE))
+								continue;
+							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE + (y - 1 + k)];
+						}
 					}
 				}
+				// write to signal
+				for (int k = 0; k < KERNEL_SIZE; k++)
+					for (int j = 0; j < KERNEL_SIZE; j++)
+						output[i][k*KERNEL_SIZE + j].write(tmp_data[k][j]);
 			}
-			// write to signal
-			for (int k = 0; k < KERNEL_SIZE; k++)
-				for (int j = 0; j < KERNEL_SIZE; j++)
-					output[i][k*KERNEL_SIZE + j].write(tmp_data[k][j]);
+
+			signal_out.write(signal_in.read());
+
+			total++;
+			out_current++;
+			ready_num--;
+			if (out_current >= IMAGE_SIZE * KERNEL_SIZE) // exceed buffer size
+				out_current = 0;
+			if (total >= IMAGE_SIZE * IMAGE_SIZE) // exceed image size
+				total = 0;
 		}
-
-		signal_out.write(signal_in.read());
-
-		total++;
-		out_current++;
-		ready_num--;
-		if (out_current >= IMAGE_SIZE * KERNEL_SIZE) // exceed buffer size
-			out_current = 0;
-		if (total >= IMAGE_SIZE * IMAGE_SIZE) // exceed image size
-			total = 0;
 	}
 
 	void add_to_buffer() {
@@ -101,8 +102,8 @@ SC_MODULE(stage_buffer) {
 			begin = true;
 		if (begin)
 			ready_num++; // for one conv crossbar
-		if (begin && ready_num > 0)
-			send_to_next_layer();
+		//if (begin && ready_num > 0)
+		//	send_to_next_layer();
 	}
 
 	SC_CTOR(stage_buffer) {
@@ -112,9 +113,9 @@ SC_MODULE(stage_buffer) {
 		sensitive << signal_in;
 		dont_initialize();
 
-		/*SC_METHOD(send_to_next_layer);
+		SC_METHOD(send_to_next_layer);
 		sensitive << clock_1.neg();
-		dont_initialize();*/
+		dont_initialize();
 	}
 };
 

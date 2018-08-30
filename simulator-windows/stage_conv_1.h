@@ -1,14 +1,16 @@
-#ifndef _STAGE_CONV
-#define _STAGE_CONV
+#ifndef _STAGE_CONV_1
+#define _STAGE_CONV_1
 
 #include "crossbar.h"
 #include "systemc.h"
 
 using namespace std;
 
-SC_MODULE(stage_conv) {
-	sc_in<float> input[INPUT_SIZE*CHANNELS];
-	sc_out<float> output[CROSSBAR_W];
+// first convolution layer, input channel 3, output channel 32
+
+SC_MODULE(stage_conv_1) {
+	sc_in<float> input[INPUT_SIZE*CHANNELS_3];
+	sc_out<float> output[CHANNELS_32];
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 
@@ -16,6 +18,7 @@ SC_MODULE(stage_conv) {
 
 	// read crossbar data from file
 	void init_crossbar() {
+		// read from convolution layer 1
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
 		for (int i = 0; i < CROSSBAR_L; i++){
 			for (int j = 0; j < CROSSBAR_W; j++){
@@ -27,8 +30,10 @@ SC_MODULE(stage_conv) {
 	}
 
 	// activation function default relu
-	void activation() {
-
+	void activation(float tmp_input[]) {
+		for (int i = 0; i < CHANNELS_32; i++)
+			if (tmp_input[i] < 0.0)
+				tmp_input[i] = 0.0;
 	}
 
 	// do maxpooling
@@ -42,19 +47,19 @@ SC_MODULE(stage_conv) {
 		float tmp_input[CROSSBAR_L] = { 0.0 };
 		float tmp_output[CROSSBAR_W] = { 0.0 };
 		// read data from former layer
-		for (int i = 0; i < INPUT_SIZE*CHANNELS; i++){
-			tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS + i] = input[i].read();
+		for (int i = 0; i < INPUT_SIZE*CHANNELS_3; i++){
+			tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_3 + i] = input[i].read();
 		}
 		cb.run(tmp_input, tmp_output);
-		activation();
-		max_pooling();
-		for (int i = 0; i < CROSSBAR_W; i++){
+		activation(tmp_output);
+		max_pooling(); // pooling size 1, do nothing
+		for (int i = 0; i < CHANNELS_32; i++){
 			output[i].write(tmp_output[i]);
 		}
 		signal_out.write(signal_in.read());
 	}
 
-	SC_CTOR(stage_conv) {
+	SC_CTOR(stage_conv_1) {
 		init_crossbar();
 
 		SC_METHOD(stage_conv_run);
@@ -62,9 +67,9 @@ SC_MODULE(stage_conv) {
 		dont_initialize();
 	}
 
-	~stage_conv() {
+	~stage_conv_1() {
 		cb.free_space();
 	}
 };
 
-#endif // !_STAGE_CONV
+#endif // !_STAGE_CONV_1
