@@ -11,19 +11,19 @@ SC_MODULE(numgen) {
 	sc_in<bool> clock;
 	sc_in<bool> clock_1;
 	sc_out<int> signal_out;
-	sc_out<float> output[INPUT_SIZE*CHANNELS];
+	sc_out<float> output[INPUT_SIZE*CHANNELS_3];
 
-	float img_data[CHANNELS][IMAGE_SIZE][IMAGE_SIZE];
+	float img_data[CHANNELS_3][IMAGE_SIZE_32][IMAGE_SIZE_32];
 	
 	// generate data
 	void generate_data() {
 		static int counter = 0; // picture number
 		if (counter < PICTURE_NUM) {
-			for (int s = 0; s < CHANNELS; s++){
-				for (int j = 0; j < IMAGE_SIZE; j++){
-					for (int k = 0; k < IMAGE_SIZE; k++){
+			for (int s = 0; s < CHANNELS_3; s++){
+				for (int j = 0; j < IMAGE_SIZE_32; j++){
+					for (int k = 0; k < IMAGE_SIZE_32; k++){
 						// read data from file
-						img_data[s][j][k] = j * IMAGE_SIZE + k;
+						img_data[s][j][k] = j * IMAGE_SIZE_32 + k;
 					}
 				}
 			}
@@ -35,20 +35,20 @@ SC_MODULE(numgen) {
 	void send_data() {
 		static int x = 0;
 		static int y = 0;
-		float tmp_data[CHANNELS][KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
+		float tmp_data[CHANNELS_3][KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
 		int tmp_x = 0;
 		int tmp_y = 0;
 		for (int i = x - 1; i < x + 2; i++) {
-			if (i < 0 || i == IMAGE_SIZE) {
+			if (i < 0 || i == IMAGE_SIZE_32) {
 				tmp_x++;
 				continue;
 			}
 			for (int j = y - 1; j < y + 2; j++) {
-				if (j < 0 || j == IMAGE_SIZE) {
+				if (j < 0 || j == IMAGE_SIZE_32) {
 					tmp_y++;
 					continue;
 				}
-				for (int k = 0; k < CHANNELS; k++) {
+				for (int k = 0; k < CHANNELS_3; k++) {
 					tmp_data[k][tmp_x][tmp_y] = img_data[k][i][j];
 				}
 				tmp_y++;
@@ -58,7 +58,7 @@ SC_MODULE(numgen) {
 		}
 		// first channel in first input_size position
 		// second channel in second input_size position
-		for (int k = 0; k < CHANNELS; k++){
+		for (int k = 0; k < CHANNELS_3; k++){
 			for (int i = 0; i < KERNEL_SIZE; i++) {
 				for (int j = 0; j < KERNEL_SIZE; j++) {
 					output[k*INPUT_SIZE + i*KERNEL_SIZE + j].write(tmp_data[k][i][j]);
@@ -66,9 +66,9 @@ SC_MODULE(numgen) {
 			}
 		}
 		
-		signal_out.write(x * IMAGE_SIZE + y + 1);
+		signal_out.write(x * IMAGE_SIZE_32 + y + 1);
 		y++;
-		if (x == IMAGE_SIZE-1 && y == IMAGE_SIZE) {
+		if (x == IMAGE_SIZE_32-1 && y == IMAGE_SIZE_32) {
 			/*for (int j = 0; j < IMAGE_SIZE; j++){
 				delete[] img_data[j];
 			}
@@ -76,7 +76,7 @@ SC_MODULE(numgen) {
 			x = 0;
 			y = 0;
 		}
-		else if (y == IMAGE_SIZE) {
+		else if (y == IMAGE_SIZE_32) {
 			x++;
 			y = 0;
 		}

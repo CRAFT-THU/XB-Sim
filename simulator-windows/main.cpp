@@ -15,7 +15,7 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<int> signal_2;
 	// int signal_counter = 0;
 
-	sc_signal<float> send_data1[INPUT_SIZE*CHANNELS];
+	sc_signal<float> send_data1[INPUT_SIZE*CHANNELS_3];
 	sc_signal<float> conv_out[CROSSBAR_W];
 	
 	// number generator
@@ -61,7 +61,7 @@ int sc_main(int argc, char* argv[]) {
 		clock.write(0);
 		sc_start(SIMULATE_DURATION, SC_NS);
 		//clock.write(1);
-		for (int j = 0; j < IMAGE_SIZE*IMAGE_SIZE; j++) {
+		for (int j = 0; j < IMAGE_SIZE_32*IMAGE_SIZE_32; j++) {
 			clock_1.write(1); // run tiles
 			sc_start(SIMULATE_DURATION, SC_NS);
 			clock_1.write(0); // send data to next layer

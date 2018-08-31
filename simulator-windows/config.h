@@ -18,7 +18,9 @@
 #define INPUT_SIZE KERNEL_SIZE*KERNEL_SIZE	
 #define CHANNELS_3 3		// each input picture channels
 #define PICTURE_NUM	1		// number of input pictures
-#define IMAGE_SIZE 32		// input picture size
+#define IMAGE_SIZE_32 32		// input picture size
+#define IMAGE_SIZE_16 16
+#define IMAGE_SIZE_8 8
 #define SIMULATE_DURATION 400	//simulation duration, in nanoseconds
 #define ALL_SIGNALS	2
 

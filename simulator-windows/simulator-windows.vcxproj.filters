@@ -35,9 +35,6 @@
     <ClInclude Include="crossbar.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stage_buffer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="linear_buffer_1.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -93,6 +90,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stage_conv_15.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_1.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

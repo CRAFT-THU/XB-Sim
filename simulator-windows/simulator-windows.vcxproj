@@ -138,7 +138,7 @@
     <ClInclude Include="hello.h" />
     <ClInclude Include="linear_buffer_2.h" />
     <ClInclude Include="numgen.h" />
-    <ClInclude Include="stage_buffer.h" />
+    <ClInclude Include="conv_buffer_1.h" />
     <ClInclude Include="stage_conv_1.h" />
     <ClInclude Include="stage_conv_10.h" />
     <ClInclude Include="stage_conv_11.h" />
