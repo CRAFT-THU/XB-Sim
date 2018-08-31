@@ -133,6 +133,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
+    <ClInclude Include="conv_buffer_10.h" />
+    <ClInclude Include="conv_buffer_11.h" />
+    <ClInclude Include="conv_buffer_12.h" />
+    <ClInclude Include="conv_buffer_13.h" />
+    <ClInclude Include="conv_buffer_14.h" />
+    <ClInclude Include="conv_buffer_2.h" />
+    <ClInclude Include="conv_buffer_3.h" />
+    <ClInclude Include="conv_buffer_4.h" />
+    <ClInclude Include="conv_buffer_5.h" />
+    <ClInclude Include="conv_buffer_6.h" />
+    <ClInclude Include="conv_buffer_7.h" />
+    <ClInclude Include="conv_buffer_8.h" />
+    <ClInclude Include="conv_buffer_9.h" />
     <ClInclude Include="crossbar.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="hello.h" />

@@ -95,5 +95,44 @@
     <ClInclude Include="conv_buffer_1.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="conv_buffer_2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_4.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_6.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_7.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_8.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_9.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_10.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_11.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_13.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="conv_buffer_14.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
