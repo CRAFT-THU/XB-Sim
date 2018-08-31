@@ -41,6 +41,7 @@ SC_MODULE(conv_buffer_1) {
 					int y = out_current % IMAGE_SIZE_32; // column number in bufer
 					for (int j = 1; j < KERNEL_SIZE; j++) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
+							// first column or last column in one image
 							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
 							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
@@ -82,31 +83,27 @@ SC_MODULE(conv_buffer_1) {
 			ready_num--;
 			if (out_current >= IMAGE_SIZE_32 * KERNEL_SIZE) // exceed buffer size
 				out_current = 0;
-			if (total >= IMAGE_SIZE_32 * IMAGE_SIZE_32) // exceed image size
+			if (total >= IMAGE_SIZE_32 * IMAGE_SIZE_32) 
+				// exceed image size, a new image stater
 				total = 0;
 		}
 	}
 
 	void add_to_buffer() {
-		if ((in_current % IMAGE_SIZE_32 == 0) && (in_current != 0)){
-			// do something
+		// put data in buffer
+		for (int i = 0; i < CHANNELS_32; i++) {
+			buffer[i][in_current] = input[i].read();
 		}
-		else {
-			// put data in buffer
-			// for one conv corssbar
-			for (int i = 0; i < CHANNELS_32; i++){
-				buffer[i][in_current] = input[i].read();
-			}
-			in_current++;
-		}
+		in_current++;
+		// in current pointer equals to buffer size
+		if (in_current == IMAGE_SIZE_32*KERNEL_SIZE)
+			in_current = 0;
 
 		// detect whether send data to next layer or not
 		if (in_current > IMAGE_SIZE_32 + 1)
 			begin = true;
 		if (begin)
 			ready_num++; // for one conv crossbar
-		//if (begin && ready_num > 0)
-		//	send_to_next_layer();
 	}
 
 	SC_CTOR(conv_buffer_1) {
