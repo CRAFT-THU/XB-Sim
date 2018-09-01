@@ -2,7 +2,7 @@
 #include "config.h"
 #include "numgen.h"
 #include "stage_conv_1.h"
-#include "stage_buffer.h"
+#include "conv_buffer_1.h"
 #include "display.h"
 
 int sc_main(int argc, char* argv[]) {
@@ -20,7 +20,7 @@ int sc_main(int argc, char* argv[]) {
 	
 	// number generator
 	numgen Num_gen("number_generator");
-	for (int j = 0; j < INPUT_SIZE*CHANNELS; j++){
+	for (int j = 0; j < INPUT_SIZE*CHANNELS_32; j++){
 		Num_gen.output[j](send_data1[j]);
 	}
 	Num_gen.clock(clock);
@@ -28,8 +28,8 @@ int sc_main(int argc, char* argv[]) {
 	Num_gen.signal_out(signal_0);
 
 	// convolution module
-	stage_conv Conv("conv_module");
-	for (int j = 0; j < INPUT_SIZE*CHANNELS; j++) {
+	stage_conv_1 Conv("conv_module");
+	for (int j = 0; j < INPUT_SIZE*CHANNELS_32; j++) {
 		Conv.input[j](send_data1[j]);
 	}
 	for (int j = 0; j < CROSSBAR_W; j++) {
@@ -39,7 +39,7 @@ int sc_main(int argc, char* argv[]) {
 	Conv.signal_out(signal_1);
 
 	// buffer
-	stage_buffer buff("stage_buffer");
+	conv_buffer_1 buff("stage_buffer");
 
 	// display module
 	display D("display_module");
