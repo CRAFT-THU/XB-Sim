@@ -107,7 +107,7 @@ SC_MODULE(conv_buffer_14) {
 			ready_num++; // for one conv crossbar
 	}
 
-	SC_CTOR(conv_buffer_11) {
+	SC_CTOR(conv_buffer_14) {
 		init();
 
 		SC_METHOD(add_to_buffer);
