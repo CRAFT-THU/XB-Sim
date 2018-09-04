@@ -1,6 +1,9 @@
 #ifndef _NUMGEN_H
 #define _NUMGEN_H
 
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "systemc.h"
 #include "config.h"
 
@@ -19,11 +22,30 @@ SC_MODULE(numgen) {
 	void generate_data() {
 		static int counter = 0; // picture number
 		if (counter < PICTURE_NUM) {
+			// open input file
+			cout << "picture number: " << counter << endl;
+			char filename[30] = { 0 };
+			char num[5] = { 0 };
+			strcpy_s(filename, "./input/x_");
+			_itoa_s(counter, num, 10);
+			strcat_s(filename, num);
+			strcat_s(filename, ".csv");
+			ifstream inFile_x(filename, ios::in);
+
 			for (int s = 0; s < CHANNELS_3; s++){
+				string lineStr_x;
+				getline(inFile_x, lineStr_x); // read one channel data
+				stringstream ss(lineStr_x);
+				string str;
 				for (int j = 0; j < IMAGE_SIZE_32; j++){
 					for (int k = 0; k < IMAGE_SIZE_32; k++){
 						// read data from file
-						img_data[s][j][k] = j * IMAGE_SIZE_32 + k;
+						// img_data[s][j][k] = j * IMAGE_SIZE_32 + k;
+						getline(ss, str, ',');
+						istringstream iss(str);
+						float num;
+						iss >> num;
+						img_data[s][j][k] = num;
 					}
 				}
 			}
