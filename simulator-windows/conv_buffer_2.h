@@ -44,7 +44,7 @@ SC_MODULE(conv_buffer_2) {
 							// first column or last column in one image
 							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}
@@ -55,7 +55,7 @@ SC_MODULE(conv_buffer_2) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
 							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}
@@ -66,7 +66,7 @@ SC_MODULE(conv_buffer_2) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
 							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}

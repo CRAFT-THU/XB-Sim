@@ -17,7 +17,7 @@
 //输入8bit数据个数, a convolution block
 #define INPUT_SIZE KERNEL_SIZE*KERNEL_SIZE	
 #define CHANNELS_3 3		// each input picture channels
-#define PICTURE_NUM	10		// number of input pictures
+#define PICTURE_NUM	100		// number of input pictures
 #define IMAGE_SIZE_32 32		// input picture size
 #define IMAGE_SIZE_16 16
 #define IMAGE_SIZE_8 8

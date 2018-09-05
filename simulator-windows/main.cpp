@@ -173,7 +173,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	buff_2.signal_in(signal_3);
 	buff_2.signal_out(signal_4);
-	buff_2.clock_1(clock);
+	buff_2.clock_1(clock_1);
 
 	// convolution module
 	stage_conv_3 Conv_3("conv_module_3");

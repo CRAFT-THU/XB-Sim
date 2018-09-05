@@ -17,6 +17,7 @@ SC_MODULE(numgen) {
 	sc_out<float> output[INPUT_SIZE*CHANNELS_3];
 
 	float img_data[CHANNELS_3][IMAGE_SIZE_32][IMAGE_SIZE_32];
+	long long num;
 	
 	// generate data
 	void generate_data() {
@@ -88,7 +89,8 @@ SC_MODULE(numgen) {
 			}
 		}
 		
-		signal_out.write(x * IMAGE_SIZE_32 + y + 1);
+		signal_out.write(num);
+		num++;
 		y++;
 		if (x == IMAGE_SIZE_32-1 && y == IMAGE_SIZE_32) {
 			/*for (int j = 0; j < IMAGE_SIZE; j++){
@@ -105,6 +107,7 @@ SC_MODULE(numgen) {
 	}
 	// constructor
 	SC_CTOR(numgen) {
+		num = 1;
 		SC_METHOD(generate_data);
 		sensitive << clock.pos();
 		dont_initialize();

@@ -15,9 +15,13 @@ SC_MODULE(display) {
 	void print_out() {
 		int counter = 0;
 		float result = 0.0;
+		float tmp_res[OUTPUT_LINEAR];
 		for (int j = 0; j < OUTPUT_LINEAR; j++){
-			if (res[j].read() > result){
-				result = res[j].read();
+			tmp_res[j] = res[j].read();
+		}
+		for (int j = 0; j < OUTPUT_LINEAR; j++){
+			if (tmp_res[j] > result){
+				result = tmp_res[j];
 				counter = j;
 			}
 		}
