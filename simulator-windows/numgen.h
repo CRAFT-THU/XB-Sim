@@ -25,12 +25,16 @@ SC_MODULE(numgen) {
 		if (counter < PICTURE_NUM) {
 			// open input file
 			cout << "picture number: " << counter << endl;
-			char filename[30] = { 0 };
-			char num[5] = { 0 };
-			strcpy_s(filename, "./input/x_");
-			_itoa_s(counter, num, 10);
-			strcat_s(filename, num);
-			strcat_s(filename, ".csv");
+//			char filename[30] = { 0 };
+//			char num[5] = { 0 };
+//			strcpy(filename, "./input/x_");
+//			itoa(counter, num, 10);
+//			strcat(filename, num);
+//			strcat(filename, ".csv");
+			string filename = "./input/x_";
+			stringstream tmpss;
+			tmpss << counter;
+			filename += (tmpss.str()+".csv");
 			ifstream inFile_x(filename, ios::in);
 
 			for (int s = 0; s < CHANNELS_3; s++){

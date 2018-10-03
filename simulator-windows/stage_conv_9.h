@@ -26,8 +26,7 @@ SC_MODULE(stage_conv_9) {
 	void init_crossbar() {
 		// read from convolution layer 9
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
-		char filename[35] = { 0 };
-		strcpy_s(filename, "./weights/weight_9.csv");
+		string filename = "./weights/weight_9.csv";
 		ifstream inFile_x(filename, ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
@@ -45,7 +44,7 @@ SC_MODULE(stage_conv_9) {
 		}
 		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
-		cout << "load weights 9 complete." << endl;
+		cout << "load weights 9 complete. " << filename << endl;
 
 		// parameters initialize
 		pooling_pointer = 0;

@@ -17,8 +17,7 @@ SC_MODULE(stage_linear_16) {
 	// read crossbar data from file
 	void init_crossbar() {
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
-		char filename[35] = { 0 };
-		strcpy_s(filename, "./weights/weight_16.csv");
+		string filename = "./weights/weight_16.csv";
 		ifstream inFile_x(filename, ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
@@ -36,7 +35,7 @@ SC_MODULE(stage_linear_16) {
 		}
 		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
-		cout << "load weights 16 complete." << endl;
+		cout << "load weights 16 complete. "  << filename << endl;
 	}
 
 	// activation function default relu
