@@ -122,6 +122,18 @@
     <ClInclude Include="conv_buffer_14.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="linear_buffer_15.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="linear_buffer_16.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_linear_16.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stage_linear_17.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp_gen.py">
