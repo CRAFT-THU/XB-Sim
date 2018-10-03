@@ -6,8 +6,8 @@
 
 using namespace std;
 
-// convolution buffer 13, input channels 128, output channels 128
-// image size 8
+// convolution buffer 13, input channels CHANNELS_128, output channels CHANNELS_128
+// image size IMAGE_SIZE_8
 
 SC_MODULE(conv_buffer_13) {
 	sc_in<float> input[CHANNELS_128]; // for one conv crossbar

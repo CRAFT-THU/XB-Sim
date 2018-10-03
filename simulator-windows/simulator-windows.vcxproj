@@ -151,7 +151,6 @@
     <ClInclude Include="crossbar.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="hello.h" />
-    <ClInclude Include="linear_buffer_2.h" />
     <ClInclude Include="numgen.h" />
     <ClInclude Include="conv_buffer_1.h" />
     <ClInclude Include="stage_conv_1.h" />
@@ -169,9 +168,6 @@
     <ClInclude Include="stage_conv_7.h" />
     <ClInclude Include="stage_conv_8.h" />
     <ClInclude Include="stage_conv_9.h" />
-    <ClInclude Include="stage_linear_1.h" />
-    <ClInclude Include="linear_buffer_1.h" />
-    <ClInclude Include="stage_linear_2.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="conv_buffer_cpp.template" />

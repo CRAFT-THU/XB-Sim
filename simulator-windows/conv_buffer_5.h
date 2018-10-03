@@ -6,8 +6,8 @@
 
 using namespace std;
 
-// convolution buffer 5, input channels 48, output channels 48
-// image size 16
+// convolution buffer 5, input channels CHANNELS_48, output channels CHANNELS_48
+// image size IMAGE_SIZE_32
 
 SC_MODULE(conv_buffer_5) {
 	sc_in<float> input[CHANNELS_48]; // for one conv crossbar
@@ -16,7 +16,7 @@ SC_MODULE(conv_buffer_5) {
 	sc_in<bool> clock_1; // for data transfer
 	sc_out<int> signal_out;
 
-	float buffer[CHANNELS_48][IMAGE_SIZE_16*KERNEL_SIZE];
+	float buffer[CHANNELS_48][IMAGE_SIZE_32*KERNEL_SIZE];
 	int in_current; // input pointer in buffer
 	int out_current; // output pointer in buffer
 	int total; // output position in one image
@@ -37,37 +37,37 @@ SC_MODULE(conv_buffer_5) {
 			for (int i = 0; i < CHANNELS_48; i++) {
 				float tmp_data[KERNEL_SIZE][KERNEL_SIZE] = { 0.0 };
 
-				if (total < IMAGE_SIZE_16) { // first row in picture, need padding
-					int x = out_current / IMAGE_SIZE_16; // row number in buffer
-					int y = out_current % IMAGE_SIZE_16; // column number in bufer
+				if (total < IMAGE_SIZE_32) { // first row in picture, need padding
+					int x = out_current / IMAGE_SIZE_32; // row number in buffer
+					int y = out_current % IMAGE_SIZE_32; // column number in bufer
 					for (int j = 1; j < KERNEL_SIZE; j++) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
 							// first column or last column in one image
-							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_16))
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_16 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}
-				else if (total >= IMAGE_SIZE_16 * (IMAGE_SIZE_16 - 1)) { // last row in picture
-					int x = out_current / IMAGE_SIZE_16; // row number in buffer
-					int y = out_current % IMAGE_SIZE_16; // column number in bufer
+				else if (total >= IMAGE_SIZE_32 * (IMAGE_SIZE_32 - 1)) { // last row in picture
+					int x = out_current / IMAGE_SIZE_32; // row number in buffer
+					int y = out_current % IMAGE_SIZE_32; // column number in bufer
 					for (int j = 0; j < KERNEL_SIZE - 1; j++) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
-							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_16))
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_16 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}
 				else {
-					int x = out_current / IMAGE_SIZE_16; // row number in buffer
-					int y = out_current % IMAGE_SIZE_16; // column number in bufer
+					int x = out_current / IMAGE_SIZE_32; // row number in buffer
+					int y = out_current % IMAGE_SIZE_32; // column number in bufer
 					for (int j = 0; j < KERNEL_SIZE; j++) {
 						for (int k = 0; k < KERNEL_SIZE; k++) {
-							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_16))
+							if ((y - 1 + k < 0) || (y - 1 + k >= IMAGE_SIZE_32))
 								continue;
-							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_16 + (y - 1 + k)];
+							tmp_data[j][k] = buffer[i][((x - 1 + j + KERNEL_SIZE) % KERNEL_SIZE)*IMAGE_SIZE_32 + (y - 1 + k)];
 						}
 					}
 				}
@@ -82,9 +82,9 @@ SC_MODULE(conv_buffer_5) {
 			total++;
 			out_current++;
 			ready_num--;
-			if (out_current >= IMAGE_SIZE_16 * KERNEL_SIZE) // exceed buffer size
+			if (out_current >= IMAGE_SIZE_32 * KERNEL_SIZE) // exceed buffer size
 				out_current = 0;
-			if (total >= IMAGE_SIZE_16 * IMAGE_SIZE_16)
+			if (total >= IMAGE_SIZE_32 * IMAGE_SIZE_32)
 				// exceed image size, a new image stater
 				total = 0;
 		}
@@ -97,11 +97,11 @@ SC_MODULE(conv_buffer_5) {
 		}
 		in_current++;
 		// in current pointer equals to buffer size
-		if (in_current == IMAGE_SIZE_16 * KERNEL_SIZE)
+		if (in_current == IMAGE_SIZE_32 * KERNEL_SIZE)
 			in_current = 0;
 
 		// detect whether send data to next layer or not
-		if (in_current > IMAGE_SIZE_16 + 1)
+		if (in_current > IMAGE_SIZE_32 + 1)
 			begin = true;
 		if (begin)
 			ready_num++; // for one conv crossbar

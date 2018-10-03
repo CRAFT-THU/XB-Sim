@@ -1,3 +1,5 @@
+/// automatic generate file
+
 #ifndef _STAGE_CONV_3
 #define _STAGE_CONV_3
 
@@ -6,7 +8,9 @@
 
 using namespace std;
 
-// second and third convolution layer, input channel 32, output channel 32
+// fifth convolution layer, input channel CHANNELS_32, output channel CHANNELS_32, pooling POOLING_SIZE_1
+
+// #define POOLING_SIZE POOLING_SIZE_1
 
 SC_MODULE(stage_conv_3) {
 	sc_in<float> input[INPUT_SIZE*CHANNELS_32];
@@ -15,13 +19,15 @@ SC_MODULE(stage_conv_3) {
 	sc_out<int> signal_out;
 
 	CROSSBAR cb;
+	float pooling_buffer[CHANNELS_32][IMAGE_SIZE_32*POOLING_SIZE_1];
+	int pooling_pointer;
 
 	// read crossbar data from file
 	void init_crossbar() {
 		// read from convolution layer 3
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
 		char filename[35] = { 0 };
-		strcpy_s(filename, "./weights/weight_2.csv");
+		strcpy_s(filename, "./weights/weight_3.csv");
 		ifstream inFile_x(filename, ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
@@ -39,7 +45,10 @@ SC_MODULE(stage_conv_3) {
 		}
 		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
-		cout << "load weights 2 complete." << endl;
+		cout << "load weights 3 complete." << endl;
+
+		// parameters initialize
+		pooling_pointer = 0;
 	}
 
 	// activation function default relu
@@ -49,9 +58,40 @@ SC_MODULE(stage_conv_3) {
 				tmp_input[i] = 0.0;
 	}
 
+	void add_to_pooling_buffer(float tmp_input[]) {
+		for (int i = 0; i < CHANNELS_32; i++){
+			pooling_buffer[i][pooling_pointer] = tmp_input[i];
+		}
+	}
+
 	// do maxpooling
 	void max_pooling() {
-		int pooling_size = 1;
+		float tmp_output[CHANNELS_32];
+		int x = pooling_pointer / IMAGE_SIZE_32;
+		int y = pooling_pointer % IMAGE_SIZE_32;
+
+		if ((x % POOLING_SIZE_1 == (POOLING_SIZE_1 - 1)) && (y % POOLING_SIZE_1 == (POOLING_SIZE_1 - 1))) {
+			for (int i = 0; i < CHANNELS_32; i++) {
+				float _max = 0.0; // can not be smaller than 0.0 after relu
+				for (int j = 0; j < POOLING_SIZE_1; j++){
+					for (int k = 0; k < POOLING_SIZE_1; k++){
+						float element = pooling_buffer[i][(x - j) % POOLING_SIZE_1*IMAGE_SIZE_32 + (y - k)];
+						if (element > _max)
+							_max = element;
+					}
+				}
+				tmp_output[i] = _max;
+			}
+
+			// send to next layer (next buffer)
+			for (int i = 0; i < CHANNELS_32; i++) {
+				output[i].write(tmp_output[i]);
+			}
+			signal_out.write(signal_in.read());
+		}
+		pooling_pointer++;
+		if (pooling_pointer >= IMAGE_SIZE_32 * POOLING_SIZE_1)
+			pooling_pointer = 0;
 	}
 
 	// run convolution
@@ -65,18 +105,9 @@ SC_MODULE(stage_conv_3) {
 		}
 		cb.run(tmp_input, tmp_output);
 		activation(tmp_output);
-		max_pooling(); // pooling size 1, do nothing
-		for (int i = 0; i < CHANNELS_32; i++) {
-			output[i].write(tmp_output[i]);
-		}
-		signal_out.write(signal_in.read());
+		add_to_pooling_buffer(tmp_output);
 
-		/*ofstream fout("conv_3_output", ios::app);
-		for (int i = 0; i < CHANNELS_32 - 1; i++)
-		{
-			fout << tmp_output[i] << ", ";
-		}
-		fout << tmp_output[CHANNELS_32 - 1] << endl;*/
+		max_pooling(); // pooling size POOLING_SIZE_1
 	}
 
 	SC_CTOR(stage_conv_3) {

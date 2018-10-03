@@ -1,14 +1,14 @@
-#ifndef _LINEAR_BUFFER_2
-#define _LINEAR_BUFFER_2
+#ifndef _LINEAR_BUFFER_16
+#define _LINEAR_BUFFER_16
 
 #include "systemc.h"
 #include "config.h"
 
 using namespace std;
 
-SC_MODULE(linear_buffer_2) {
-	// linear buffer 2
-	sc_in<float> input[INPUT_LINEAR_2]; // in linear buffer 2, upper layer is linear layer and its output is 128
+SC_MODULE(linear_buffer_16) {
+	// linear buffer 16
+	sc_in<float> input[INPUT_LINEAR_2]; // in linear buffer 16, upper layer is conv layer and its channels is 128
 	sc_out<float> output[INPUT_LINEAR_2];
 	sc_in<int> signal_in;
 	sc_in<bool> clock_1;
@@ -32,11 +32,11 @@ SC_MODULE(linear_buffer_2) {
 
 	void add_to_buffer() {
 		for (int i = 0; i < INPUT_LINEAR_2; i++)
-			buffer[i] = input[i].read();
+			buffer[current / INPUT_LINEAR_2 + i * INPUT_LINEAR_2 / INPUT_LINEAR_2] = input[i].read();
 		current += INPUT_LINEAR_2;
 	}
 
-	SC_CTOR(linear_buffer_2) {
+	SC_CTOR(linear_buffer_16) {
 		init();
 
 		SC_METHOD(add_to_buffer);
@@ -50,4 +50,4 @@ SC_MODULE(linear_buffer_2) {
 };
 
 
-#endif // !_LINEAR_BUFFER_2
+#endif // !_LINEAR_BUFFER_16

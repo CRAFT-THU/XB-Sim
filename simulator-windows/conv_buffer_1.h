@@ -6,7 +6,8 @@
 
 using namespace std;
 
-// convolution buffer 1, input channels 32, output channels 32
+// convolution buffer 1, input channels CHANNELS_32, output channels CHANNELS_32
+// image size IMAGE_SIZE_32
 
 SC_MODULE(conv_buffer_1) {
 	sc_in<float> input[CHANNELS_32]; // for one conv crossbar
@@ -83,7 +84,7 @@ SC_MODULE(conv_buffer_1) {
 			ready_num--;
 			if (out_current >= IMAGE_SIZE_32 * KERNEL_SIZE) // exceed buffer size
 				out_current = 0;
-			if (total >= IMAGE_SIZE_32 * IMAGE_SIZE_32) 
+			if (total >= IMAGE_SIZE_32 * IMAGE_SIZE_32)
 				// exceed image size, a new image stater
 				total = 0;
 		}
@@ -96,7 +97,7 @@ SC_MODULE(conv_buffer_1) {
 		}
 		in_current++;
 		// in current pointer equals to buffer size
-		if (in_current == IMAGE_SIZE_32*KERNEL_SIZE)
+		if (in_current == IMAGE_SIZE_32 * KERNEL_SIZE)
 			in_current = 0;
 
 		// detect whether send data to next layer or not

@@ -1,3 +1,5 @@
+/// automatic generate file
+
 #ifndef _STAGE_CONV_10
 #define _STAGE_CONV_10
 
@@ -6,9 +8,9 @@
 
 using namespace std;
 
-// tenth convolution layer, input channel 80, output channel 80
+// fifth convolution layer, input channel CHANNELS_80, output channel CHANNELS_80, pooling POOLING_SIZE_2
 
-#define POOLING_SIZE 2
+// #define POOLING_SIZE POOLING_SIZE_2
 
 SC_MODULE(stage_conv_10) {
 	sc_in<float> input[INPUT_SIZE*CHANNELS_80];
@@ -17,7 +19,7 @@ SC_MODULE(stage_conv_10) {
 	sc_out<int> signal_out;
 
 	CROSSBAR cb;
-	float pooling_buffer[CHANNELS_80][IMAGE_SIZE_16*POOLING_SIZE];
+	float pooling_buffer[CHANNELS_80][IMAGE_SIZE_16*POOLING_SIZE_2];
 	int pooling_pointer;
 
 	// read crossbar data from file
@@ -25,7 +27,7 @@ SC_MODULE(stage_conv_10) {
 		// read from convolution layer 10
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
 		char filename[35] = { 0 };
-		strcpy_s(filename, "./weights/weight_9.csv");
+		strcpy_s(filename, "./weights/weight_10.csv");
 		ifstream inFile_x(filename, ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
@@ -43,8 +45,9 @@ SC_MODULE(stage_conv_10) {
 		}
 		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
-		cout << "load weights 9 complete." << endl;
+		cout << "load weights 10 complete." << endl;
 
+		// parameters initialize
 		pooling_pointer = 0;
 	}
 
@@ -56,7 +59,7 @@ SC_MODULE(stage_conv_10) {
 	}
 
 	void add_to_pooling_buffer(float tmp_input[]) {
-		for (int i = 0; i < CHANNELS_80; i++) {
+		for (int i = 0; i < CHANNELS_80; i++){
 			pooling_buffer[i][pooling_pointer] = tmp_input[i];
 		}
 	}
@@ -67,12 +70,12 @@ SC_MODULE(stage_conv_10) {
 		int x = pooling_pointer / IMAGE_SIZE_16;
 		int y = pooling_pointer % IMAGE_SIZE_16;
 
-		if ((x % POOLING_SIZE == (POOLING_SIZE - 1)) && (y % POOLING_SIZE == (POOLING_SIZE - 1))) {
+		if ((x % POOLING_SIZE_2 == (POOLING_SIZE_2 - 1)) && (y % POOLING_SIZE_2 == (POOLING_SIZE_2 - 1))) {
 			for (int i = 0; i < CHANNELS_80; i++) {
 				float _max = 0.0; // can not be smaller than 0.0 after relu
-				for (int j = 0; j < POOLING_SIZE; j++) {
-					for (int k = 0; k < POOLING_SIZE; k++) {
-						float element = pooling_buffer[i][(x - j) % POOLING_SIZE*IMAGE_SIZE_16 + (y - k)];
+				for (int j = 0; j < POOLING_SIZE_2; j++){
+					for (int k = 0; k < POOLING_SIZE_2; k++){
+						float element = pooling_buffer[i][(x - j) % POOLING_SIZE_2*IMAGE_SIZE_16 + (y - k)];
 						if (element > _max)
 							_max = element;
 					}
@@ -87,7 +90,7 @@ SC_MODULE(stage_conv_10) {
 			signal_out.write(signal_in.read());
 		}
 		pooling_pointer++;
-		if (pooling_pointer >= IMAGE_SIZE_16 * POOLING_SIZE)
+		if (pooling_pointer >= IMAGE_SIZE_16 * POOLING_SIZE_2)
 			pooling_pointer = 0;
 	}
 
@@ -104,7 +107,7 @@ SC_MODULE(stage_conv_10) {
 		activation(tmp_output);
 		add_to_pooling_buffer(tmp_output);
 
-		max_pooling(); // pooling size 2
+		max_pooling(); // pooling size POOLING_SIZE_2
 	}
 
 	SC_CTOR(stage_conv_10) {

@@ -30,10 +30,10 @@
 #include "conv_buffer_12.h"
 #include "conv_buffer_13.h"
 #include "conv_buffer_14.h"
-#include "stage_linear_1.h"
-#include "stage_linear_2.h"
-#include "linear_buffer_1.h"
-#include "linear_buffer_2.h"
+#include "stage_linear_16.h"
+#include "stage_linear_17.h"
+#include "linear_buffer_15.h"
+#include "linear_buffer_16.h"
 #include "display.h"
 
 int sc_main(int argc, char* argv[]) {
@@ -513,7 +513,7 @@ int sc_main(int argc, char* argv[]) {
 	Conv_15.signal_out(signal_29);
 
 	// linear buffer 1
-	linear_buffer_1 linear_buff_1("linear_buffer_1");
+	linear_buffer_15 linear_buff_1("linear_buffer_15");
 	for (int j = 0; j < CHANNELS_128; j++){
 		linear_buff_1.input[j](conv_15_out[j]);
 	}
@@ -525,7 +525,7 @@ int sc_main(int argc, char* argv[]) {
 	linear_buff_1.clock_1(clock_1);
 
 	// linear module
-	stage_linear_1 linear_1("stage_linear_1");
+	stage_linear_16 linear_1("stage_linear_16");
 	for (int j = 0; j < INPUT_LINEAR_1; j++){
 		linear_1.input[j](buff_linear_1_out[j]);
 	}
@@ -536,7 +536,7 @@ int sc_main(int argc, char* argv[]) {
 	linear_1.signal_out(signal_31);
 
 	// linear buffer 2
-	linear_buffer_2 linear_buff_2("linear_buffer_2");
+	linear_buffer_16 linear_buff_2("linear_buffer_16");
 	for (int j = 0; j < INPUT_LINEAR_2; j++) {
 		linear_buff_2.input[j](linear_1_out[j]);
 	}
@@ -548,7 +548,7 @@ int sc_main(int argc, char* argv[]) {
 	linear_buff_2.clock_1(clock_1);
 
 	// linear module
-	stage_linear_2 linear_2("stage_linear_2");
+	stage_linear_17 linear_2("stage_linear_17");
 	for (int j = 0; j < INPUT_LINEAR_2; j++) {
 		linear_2.input[j](buff_linear_2_out[j]);
 	}

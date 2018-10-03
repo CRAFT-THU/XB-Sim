@@ -1,14 +1,14 @@
-#ifndef _STAGE_LINEAR_1
-#define _STAGE_LINEAR_1
+#ifndef _STAGE_LINEAR_17
+#define _STAGE_LINEAR_17
 
 #include "crossbar.h"
 #include "systemc.h"
 
 using namespace std;
 
-SC_MODULE(stage_linear_1) {
-	sc_in<float> input[INPUT_LINEAR_1];
-	sc_out<float> output[INPUT_LINEAR_2];
+SC_MODULE(stage_linear_17) {
+	sc_in<float> input[INPUT_LINEAR_2];
+	sc_out<float> output[OUTPUT_LINEAR];
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 
@@ -18,7 +18,7 @@ SC_MODULE(stage_linear_1) {
 	void init_crossbar() {
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
 		char filename[35] = { 0 };
-		strcpy_s(filename, "./weights/weight_15.csv");
+		strcpy_s(filename, "./weights/weight_17.csv");
 		ifstream inFile_x(filename, ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
@@ -36,12 +36,12 @@ SC_MODULE(stage_linear_1) {
 		}
 		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
-		cout << "load weights 15 complete." << endl;
+		cout << "load weights 17 complete." << endl;
 	}
 
 	// activation function default relu
 	void activation(float tmp_input[]) {
-		for (int i = 0; i < INPUT_LINEAR_2; i++)
+		for (int i = 0; i < OUTPUT_LINEAR; i++)
 			if (tmp_input[i] < 0.0)
 				tmp_input[i] = 0.0;
 	}
@@ -52,18 +52,18 @@ SC_MODULE(stage_linear_1) {
 		float tmp_input[CROSSBAR_L] = { 0.0 };
 		float tmp_output[CROSSBAR_W] = { 0.0 };
 		// read data from former layer
-		for (int i = 0; i < INPUT_LINEAR_1; i++) {
-			tmp_input[CROSSBAR_L-INPUT_LINEAR_1+i] = input[i].read();
+		for (int i = 0; i < INPUT_LINEAR_2; i++) {
+			tmp_input[CROSSBAR_L-INPUT_LINEAR_2+i] = input[i].read();
 		}
 		cb.run(tmp_input, tmp_output);
 		activation(tmp_output);
-		for (int i = 0; i < INPUT_LINEAR_2; i++) {
+		for (int i = 0; i < OUTPUT_LINEAR; i++) {
 			output[i].write(tmp_output[i]);
 		}
 		signal_out.write(signal_in.read());
 	}
 
-	SC_CTOR(stage_linear_1) {
+	SC_CTOR(stage_linear_17) {
 		init_crossbar();
 
 		SC_METHOD(stage_linear_run);
@@ -71,9 +71,9 @@ SC_MODULE(stage_linear_1) {
 		dont_initialize();
 	}
 
-	~stage_linear_1() {
+	~stage_linear_17() {
 		cb.free_space();
 	}
 };
 
-#endif // !_STAGE_LINEAR_1
+#endif // !_STAGE_LINEAR_17
