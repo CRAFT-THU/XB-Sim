@@ -31,5 +31,9 @@
 #define CHANNELS_48 48
 #define CHANNELS_80 80
 #define CHANNELS_128 128
+
+#define POOLING_SIZE_1 1
+#define POOLING_SIZE_2 2
+#define POOLING_SIZE_8 8
 #endif // !_CONFIG_H
 

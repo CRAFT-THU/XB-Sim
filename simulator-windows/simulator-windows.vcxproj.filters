@@ -135,4 +135,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp_gen.py">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="linear_buffer_cpp.template">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="linear_cpp.template">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="conv_buffer_cpp.template">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="conv_cpp.template">
+      <Filter>头文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>

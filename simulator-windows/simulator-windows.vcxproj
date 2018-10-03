@@ -173,6 +173,13 @@
     <ClInclude Include="linear_buffer_1.h" />
     <ClInclude Include="stage_linear_2.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="conv_buffer_cpp.template" />
+    <None Include="conv_cpp.template" />
+    <None Include="cpp_gen.py" />
+    <None Include="linear_buffer_cpp.template" />
+    <None Include="linear_cpp.template" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

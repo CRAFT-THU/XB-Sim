@@ -26,7 +26,9 @@ SC_MODULE(display) {
 			}
 		}
 		cout << counter << endl;
-		counter++;
+		ofstream fout("result.txt", ios::app);
+		fout << counter << endl;
+		fout.close();
 		signal_out.write(signal_in.read());
 	}
 
