@@ -134,6 +134,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ADC.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="conv_buffer_10.h" />
     <ClInclude Include="conv_buffer_11.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="conv_buffer_8.h" />
     <ClInclude Include="conv_buffer_9.h" />
     <ClInclude Include="crossbar.h" />
+    <ClInclude Include="DAC.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="hello.h" />
     <ClInclude Include="linear_buffer_15.h" />

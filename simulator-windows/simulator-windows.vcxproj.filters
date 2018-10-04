@@ -134,6 +134,12 @@
     <ClInclude Include="stage_linear_17.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ADC.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DAC.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp_gen.py">
