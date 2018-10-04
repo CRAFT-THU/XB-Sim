@@ -50,10 +50,9 @@ typedef struct Crossbar
 
 	float get_noise(float x)
 	{
-		float noise;
+		// float noise;
 		x = fabsf(x);
-		float random =
-			noise = -0.0006034 * (x * 1000) * (x * 1000) + 0.06184 * x + 0.948661*0.000001;
+		float noise = -0.0006034 * (x * 1000) * (x * 1000) + 0.06184 * x + 0.948661*0.000001;
 		noise = noise * gaussrand();
 		return noise;
 	}

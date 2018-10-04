@@ -35,7 +35,7 @@ SC_MODULE(numgen) {
 			stringstream tmpss;
 			tmpss << counter;
 			filename += (tmpss.str()+".csv");
-			ifstream inFile_x(filename, ios::in);
+			ifstream inFile_x(filename.c_str(), ios::in);
 
 			for (int s = 0; s < CHANNELS_3; s++){
 				string lineStr_x;

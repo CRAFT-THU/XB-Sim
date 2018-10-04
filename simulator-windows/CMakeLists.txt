@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.7)
-project(simulator_mac)
+cmake_minimum_required(VERSION 3.5)
+project(simulator-windows)
 
 find_package(SystemCLanguage CONFIG REQUIRED)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -lstdc++ -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -lstdc++ -std=c++11")
 
-set(INC_DIR /Users/liuhe/Workspace/systemc-2.3.2/include)
-set(LINK_DIR /Users/liuhe/Workspace/systemc-2.3.2/lib)
-
-include_directories(${INC_DIR})
-link_directories(${LINK_DIR})
-link_libraries(systemc)
+#set(INC_DIR /home/liuhe/systemc-2.3.2/include)
+#set(LINK_DIR /home/liuhe/systemc-2.3.2/lib)
+#
+#include_directories(${INC_DIR})
+#link_directories(${LINK_DIR})
+#link_libraries(systemc)
 
 set(SOURCE_FILES
         config.h
@@ -50,5 +50,11 @@ set(SOURCE_FILES
         linear_buffer_16.h
         display.h
         main.cpp)
-add_executable(simulator_mac ${SOURCE_FILES})
-target_link_libraries(simulator_mac systemc)
+# 配置gdb调试
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g3 -ggdb")
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
+
+add_executable(simulator-windows ${SOURCE_FILES})
+target_link_libraries(simulator-windows SystemC::systemc)
