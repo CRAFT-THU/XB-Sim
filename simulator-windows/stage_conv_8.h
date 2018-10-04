@@ -27,7 +27,7 @@ SC_MODULE(stage_conv_8) {
 		// read from convolution layer 8
 		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
 		string filename = "./weights/weight_8.csv";
-		ifstream inFile_x(filename, ios::in);
+		ifstream inFile_x(filename.c_str(), ios::in);
 		for (int i = 0; i < CROSSBAR_L; i++) {
 			string lineStr_x;
 			getline(inFile_x, lineStr_x); // read one row data
