@@ -4,6 +4,7 @@
 #include "systemc.h"
 #include "config.h"
 #include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -11,6 +12,23 @@ SC_MODULE(display) {
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 	sc_in<float> res[OUTPUT_LINEAR];
+
+	int labels[PICTURE_NUM];
+	int number;
+	int total;
+	void init() {
+		number = 0;
+		total = 0;
+		string filename = "labels.csv";
+		ifstream inFile_x(filename.c_str(), ios::in);
+		for (int i = 0; i < PICTURE_NUM; i++){
+			string line;
+			getline(inFile_x, line);
+			stringstream ss(line);
+			ss >> labels[i];
+		}
+		inFile_x.close();
+	}
 
 	void print_out() {
 		int counter = 0;
@@ -25,6 +43,10 @@ SC_MODULE(display) {
 				counter = j;
 			}
 		}
+		if (counter == labels[number])
+			total++;
+		number++;
+		cout << total << endl;
 		cout << counter << endl;
 		ofstream fout("result.txt", ios::app);
 		fout << counter << endl;
@@ -33,6 +55,8 @@ SC_MODULE(display) {
 	}
 
 	SC_CTOR(display) {
+		init();
+
 		SC_METHOD(print_out);
 		sensitive << signal_in;
 		dont_initialize();

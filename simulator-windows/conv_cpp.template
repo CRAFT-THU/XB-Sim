@@ -5,6 +5,8 @@
 
 #include "crossbar.h"
 #include "systemc.h"
+#include "ADC.h"
+#include "DAC.h"
 
 using namespace std;
 
@@ -95,16 +97,66 @@ SC_MODULE(stage_conv_${layer_num}) {
 
 	// run convolution
 	void stage_conv_run() {
-
-		float tmp_input[CROSSBAR_L] = { 0.0 };
-		float tmp_output[CROSSBAR_W] = { 0.0 };
-		// read data from former layer
-		for (int i = 0; i < INPUT_SIZE*${input_channel}; i++) {
-			tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + i] = input[i].read();
+		// read data
+		int input_buff[INPUT_SIZE*${input_channel}] = { 0 };
+		float _max = 0.0;
+		for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
+			input_buff[i] = int(input[i].read());
+			if (input_buff[i] > _max)
+				_max = input_buff[i];
 		}
-		cb.run(tmp_input, tmp_output);
-		activation(tmp_output);
-		add_to_pooling_buffer(tmp_output);
+
+		// for movement
+		int move = 0;
+		for (int i = 0; i < DA_WIDTH; ++i){
+			move += int(pow(2, double(i)));
+		}
+
+		// scale input
+		int n = 0;
+		while (pow(2, double(n)) < _max)
+			n++;
+		if (n > AD_WIDTH){
+			float para = pow(2, AD_WIDTH-n);
+			for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
+				input_buff[i] /= para;
+			}
+		}
+
+		// DA->XB->AD
+		da dac(DA_V);
+		ad adc(AD_V);
+		float ad_buff[CROSSBAR_W] = { 0.0 };
+		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+			float tmp_input[CROSSBAR_L] = { 0.0 };
+			float tmp_output[CROSSBAR_W] = { 0.0 };
+			// lower da_width bits
+			for (int j = 0; j < INPUT_SIZE*${input_channel}; ++j){
+				int bitnum = static_cast<int>(input_buff[j] & move);
+				dac.trans(bitnum, DA_WIDTH);
+				tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + j] = float(bitnum);
+				input_buff[j] >>= DA_WIDTH;
+			}
+			cb.run(tmp_input, tmp_output);
+			// ad and shift add
+			for (int j = 0; j < CROSSBAR_W; ++j){
+				adc.trans(tmp_output[j]);
+				float tmp = adc.AD_out ; // / XB${layer_num}_I; // divide by xb_i?
+				tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
+				ad_buff[j] = tmp + 2*ad_buff[j];
+				ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
+			}
+		}
+
+		// float tmp_input[CROSSBAR_L] = { 0.0 };
+		// float tmp_output[CROSSBAR_W] = { 0.0 };
+		// // read data from former layer
+		// for (int i = 0; i < INPUT_SIZE*${input_channel}; i++) {
+		// 	tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + i] = input_buff[i];
+		// }
+		// cb.run(tmp_input, tmp_output);
+		activation(ad_buff);
+		add_to_pooling_buffer(ad_buff);
 
 		max_pooling(); // pooling size ${pooling_size}
 	}

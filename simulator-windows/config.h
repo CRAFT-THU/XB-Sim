@@ -9,9 +9,29 @@
 #define CROSSBAR_W 128		//crossbar宽度
 #define CROSSBAR_N 4		//crossbar个数 in one tile
 #define AD_REUSE_NUM 32		//AD复用
-#define XB01_I 0.00492679327726364
-#define XB2_I 0.00398490577936172
-#define XB3_I 0.00257207546383142
+// #define XB01_I 0.00492679327726364
+// #define XB2_I 0.00398490577936172
+// #define XB3_I 0.00257207546383142
+
+
+#define XB0_I 255.0000
+#define XB1_I 544.1123
+#define XB2_I 577.6968
+#define XB3_I 498.8477
+#define XB4_I 416.2358
+#define XB5_I 422.0193
+#define XB6_I 551.4277
+#define XB7_I 560.6636
+#define XB8_I 514.5170
+#define XB9_I 386.2259
+#define XB10_I 384.3456
+#define XB11_I 451.3769
+#define XB12_I 401.3741
+#define XB13_I 263.9953
+#define XB14_I 207.4094
+#define XB15_I 135.6547
+#define XB16_I 36.3211
+#define XB17_I 28.6738
 
 #define KERNEL_SIZE 3
 //输入8bit数据个数, a convolution block
