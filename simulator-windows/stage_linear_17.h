@@ -48,16 +48,76 @@ SC_MODULE(stage_linear_17) {
 	// run matrix multiply
 	void stage_linear_run() {
 		
-		float tmp_input[CROSSBAR_L] = { 0.0 };
-		float tmp_output[CROSSBAR_W] = { 0.0 };
-		// read data from former layer
-		for (int i = 0; i < INPUT_LINEAR_2; i++) {
-			tmp_input[CROSSBAR_L-INPUT_LINEAR_2+i] = input[i].read();
+		int input_buff[INPUT_LINEAR_2] = { 0 };
+		float _max = 0.0;
+		for (int i = 0; i < INPUT_LINEAR_2; ++i){
+			input_buff[i] = int(input[i].read());
+			if (input_buff[i] > _max)
+				_max = input_buff[i];
 		}
-		cb.run(tmp_input, tmp_output);
-		activation(tmp_output);
+
+		// for movement
+		int move = 0;
+		for (int i = 0; i < DA_WIDTH; ++i){
+			move += int(pow(2, double(i)));
+		}
+
+		// scale input
+		int n = 0;
+		while (pow(2, double(n)) < _max)
+			n++;
+		if (n > AD_WIDTH){
+			float para = pow(2, AD_WIDTH-n);
+			for (int i = 0; i < INPUT_LINEAR_2; ++i){
+				input_buff[i] = int(float(input_buff[i]) / para);
+			}
+		}
+
+		// DA->XB->AD
+		da dac(DA_V);
+		ad adc(AD_V);
+		float ad_buff[CROSSBAR_W] = { 0.0 };
+		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+			float tmp_input[CROSSBAR_L] = { 0.0 };
+			float tmp_output[CROSSBAR_W] = { 0.0 };
+			// lower da_width bits
+			for (int j = 0; j < INPUT_LINEAR_2; ++j){
+				int bitnum = static_cast<int>(input_buff[j] & move);
+				dac.trans(bitnum, DA_WIDTH);
+				tmp_input[CROSSBAR_L - INPUT_LINEAR_2 + j] = float(bitnum);
+				input_buff[j] = input_buff[j] >> DA_WIDTH;
+			}
+			cb.run(tmp_input, tmp_output);
+			// ad and shift add
+			for (int j = 0; j < CROSSBAR_W; ++j){
+				float tmp = tmp_output[j] / XB17_I;
+				if (tmp > 1)
+					adc.trans(1.0);
+				else {
+					adc.trans(tmp);
+				}
+				// float tmp = adc.AD_out / (XB17_I * 0.15); // divide by xb_i?
+				// tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
+				// int res = 0;
+				// if (tmp > 1)
+				// 	res = int(pow(2, AD_WIDTH));
+				// else 
+				// 	res = int(tmp * pow(2, AD_WIDTH));
+				ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+				// ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
+			}
+		}
+
+		// for (int i = 0; i < INPUT_LINEAR_2; ++i)
+		// {
+		// 	if (ad_buff[i] >= pow(2, 13))
+		// 		ad_buff[i] = 255;
+		// 	else
+		// 		ad_buff[i] = (int(ad_buff[i] / 16.0) & 255);
+		// }
+		activation(ad_buff);
 		for (int i = 0; i < OUTPUT_LINEAR; i++) {
-			output[i].write(tmp_output[i]);
+			output[i].write(ad_buff[i]);
 		}
 		signal_out.write(signal_in.read());
 	}

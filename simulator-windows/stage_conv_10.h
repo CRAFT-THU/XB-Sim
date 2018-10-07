@@ -119,7 +119,7 @@ SC_MODULE(stage_conv_10) {
 		if (n > AD_WIDTH){
 			float para = pow(2, AD_WIDTH-n);
 			for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i){
-				input_buff[i] /= para;
+				input_buff[i] = int(float(input_buff[i]) / para);
 			}
 		}
 
@@ -135,18 +135,36 @@ SC_MODULE(stage_conv_10) {
 				int bitnum = static_cast<int>(input_buff[j] & move);
 				dac.trans(bitnum, DA_WIDTH);
 				tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + j] = float(bitnum);
-				input_buff[j] >>= DA_WIDTH;
+				input_buff[j] = input_buff[j] >> DA_WIDTH;
 			}
 			cb.run(tmp_input, tmp_output);
 			// ad and shift add
 			for (int j = 0; j < CROSSBAR_W; ++j){
-				adc.trans(tmp_output[j]);
-				float tmp = adc.AD_out ; // / XB10_I; // divide by xb_i?
-				tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
-				ad_buff[j] = tmp + 2*ad_buff[j];
-				ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
+				float tmp = tmp_output[j] / XB10_I;
+				if (tmp > 1)
+					adc.trans(1.0);
+				else {
+					adc.trans(tmp);
+				}
+				// float tmp = adc.AD_out / (XB10_I * 0.15); // divide by xb_i?
+				// tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
+				// int res = 0;
+				// if (tmp > 1)
+				// 	res = int(pow(2, AD_WIDTH));
+				// else 
+				// 	res = int(tmp * pow(2, AD_WIDTH));
+				ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+				// ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
 			}
 		}
+
+		// for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i)
+		// {
+		// 	if (ad_buff[i] >= pow(2, 13))
+		// 		ad_buff[i] = 255;
+		// 	else
+		// 		ad_buff[i] = (int(ad_buff[i] / 16.0) & 255);
+		// }
 
 		// float tmp_input[CROSSBAR_L] = { 0.0 };
 		// float tmp_output[CROSSBAR_W] = { 0.0 };

@@ -15,23 +15,23 @@
 
 
 #define XB0_I 255.0000
-#define XB1_I 544.1123
-#define XB2_I 577.6968
-#define XB3_I 498.8477
-#define XB4_I 416.2358
-#define XB5_I 422.0193
-#define XB6_I 551.4277
-#define XB7_I 560.6636
-#define XB8_I 514.5170
-#define XB9_I 386.2259
-#define XB10_I 384.3456
-#define XB11_I 451.3769
-#define XB12_I 401.3741
-#define XB13_I 263.9953
-#define XB14_I 207.4094
-#define XB15_I 135.6547
-#define XB16_I 36.3211
-#define XB17_I 28.6738
+#define XB1_I 4.00 // 544.1123
+#define XB2_I 2.80 // 577.6968
+#define XB3_I 2.60 // 498.8477
+#define XB4_I 2.90 // 416.2358
+#define XB5_I 3.00 // 422.0193
+#define XB6_I 3.80 // 551.4277
+#define XB7_I 4.15 // 560.6636
+#define XB8_I 3.00 // 514.5170
+#define XB9_I 2.70 // 386.2259
+#define XB10_I 2.60 // 384.3456
+#define XB11_I 3.40 // 451.3769
+#define XB12_I 3.10 // 401.3741
+#define XB13_I 2.50 // 263.9953
+#define XB14_I 1.95 // 207.4094
+#define XB15_I 1.75 // 135.6547
+#define XB16_I 1.10 // 36.3211
+#define XB17_I 1.50 // 28.6738
 
 #define KERNEL_SIZE 3
 //输入8bit数据个数, a convolution block
