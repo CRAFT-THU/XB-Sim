@@ -15,6 +15,8 @@ set(SOURCE_FILES
         config.h
         numgen.h
         crossbar.h
+        DAC.h
+        ADC.h
         stage_conv_1.h
         stage_conv_2.h
         stage_conv_3.h
