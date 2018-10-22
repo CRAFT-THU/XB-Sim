@@ -1,7 +1,7 @@
 #ifndef _STAGE_LINEAR_17
 #define _STAGE_LINEAR_17
 
-#include "crossbar.h"
+#include "crossbar_cuda.h"
 #include "systemc.h"
 
 using namespace std;

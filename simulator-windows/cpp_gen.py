@@ -5,7 +5,7 @@ conv_layers = 15
 conv_buffer = 14
 linear_layes = 2
 linear_buffer = 2
-use_cuda = False
+use_cuda = True
 
 conv_configs = [
 	{'layer_num':1, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_3', 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},

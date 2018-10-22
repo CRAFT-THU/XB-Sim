@@ -3,7 +3,7 @@
 #ifndef _STAGE_CONV_6
 #define _STAGE_CONV_6
 
-#include "crossbar.h"
+#include "crossbar_cuda.h"
 #include "systemc.h"
 #include "ADC.h"
 #include "DAC.h"

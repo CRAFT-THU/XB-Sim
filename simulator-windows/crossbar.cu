@@ -49,7 +49,7 @@ __global__ void CUDA_MatrixMui(float *a,float *b,float *c,int cols,int rows) {
     float temp = 0;
     for (int i=0;i<cols;i++)
     {
-        temp+=a[n_cell*cols+i]*b[n_cell*rows*cols+row*cols+i];
+        temp+=a[n_cell*cols+i]*b[n_cell*rows*cols+i*rows+row];
 
     }
 
@@ -144,12 +144,12 @@ void Crossbar::printstd() {
     free(temp_cell);
 }
 
-void Crossbar::run(float *input, float *output, bool use_noise=true) {
+void Crossbar::run(float *input, float *output, bool use_noise) {
     float *input_d,*output_d;
-    cudaMalloc((void **)&input_d, CB_n*CB_w*sizeof(float));
-    cudaMalloc((void **)&output_d, CB_n*CB_l*sizeof(float));
-    cudaMemcpy(input_d, input, CB_n*CB_w * sizeof(float),cudaMemcpyHostToDevice);
-    dim3 numBlocks(CB_n, CB_l);
+    cudaMalloc((void **)&input_d, CB_n*CB_l*sizeof(float));
+    cudaMalloc((void **)&output_d, CB_n*CB_w*sizeof(float));
+    cudaMemcpy(input_d, input, CB_n*CB_l * sizeof(float),cudaMemcpyHostToDevice);
+    dim3 numBlocks(CB_n, CB_w);
     if (use_noise)
     {
         float *temp_noise,*temp_cell;
@@ -161,9 +161,9 @@ void Crossbar::run(float *input, float *output, bool use_noise=true) {
     }
     else
     {
-        CUDA_MatrixMui<<<numBlocks,1>>>(input_d,CB_cell,output_d,CB_w,CB_l);
+        CUDA_MatrixMui<<<numBlocks,1>>>(input_d,CB_cell,output_d,CB_l,CB_w);
     }
-    cudaMemcpy(output, output_d, CB_n*CB_l* sizeof(float),cudaMemcpyDeviceToHost) ;
+    cudaMemcpy(output, output_d, CB_n*CB_w* sizeof(float),cudaMemcpyDeviceToHost) ;
     cudaFree( input_d );
     cudaFree( output_d );
 }
