@@ -12,7 +12,7 @@ typedef struct Crossbar
 	int CB_l;
 	int CB_w;
 	float *CB_cell;
-	void init(float *CB_cells, int l, int w)
+	void init(float *CB_cells, int n, int l, int w)
 	{
 		CB_l = l;
 		CB_w = w;
@@ -72,7 +72,7 @@ typedef struct Crossbar
 		}
 	}
 
-	void run(float *input, float *output)
+	void run(float *input, float *output, bool noise=true)
 	{
 		float *output_d = new float[CB_w];
 		float *input_d = new float[CB_l];

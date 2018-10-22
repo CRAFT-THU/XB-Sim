@@ -5,6 +5,7 @@ conv_layers = 15
 conv_buffer = 14
 linear_layes = 2
 linear_buffer = 2
+use_cuda = False
 
 conv_configs = [
 	{'layer_num':1, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_3', 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
@@ -60,12 +61,22 @@ for layer in range(0, conv_layers):
 	template_file = open(r'conv_cpp.template', 'r')
 	tmp1 = Template(template_file.read())
 
-	lines.append(tmp1.substitute(
-			layer_num = conv_configs[layer]['layer_num'],
-			image_size = conv_configs[layer]['image_size'],
-			input_channel = conv_configs[layer]['input_channel'],
-			output_channel = conv_configs[layer]['output_channel'],
-			pooling_size = conv_configs[layer]['pooling_size']))
+	if not use_cuda:
+		lines.append(tmp1.substitute(
+				crossbar_file = 'crossbar.h',
+				layer_num = conv_configs[layer]['layer_num'],
+				image_size = conv_configs[layer]['image_size'],
+				input_channel = conv_configs[layer]['input_channel'],
+				output_channel = conv_configs[layer]['output_channel'],
+				pooling_size = conv_configs[layer]['pooling_size']))
+	else:
+		lines.append(tmp1.substitute(
+				crossbar_file = 'crossbar_cuda.h',
+				layer_num = conv_configs[layer]['layer_num'],
+				image_size = conv_configs[layer]['image_size'],
+				input_channel = conv_configs[layer]['input_channel'],
+				output_channel = conv_configs[layer]['output_channel'],
+				pooling_size = conv_configs[layer]['pooling_size']))
 	
 	output_file.writelines(lines)
 	output_file.close()
@@ -100,10 +111,18 @@ for linear in range(0, linear_layes):
 	template_file = open(r'linear_cpp.template', 'r')
 	tmp1 = Template(template_file.read())
 
-	lines.append(tmp1.substitute(
-			layer_num = linear_configs[linear]['layer_num'],
-			input_size = linear_configs[linear]['input_size'],
-			output_size = linear_configs[linear]['output_size']))
+	if not use_cuda:
+		lines.append(tmp1.substitute(
+				crossbar_file = 'crossbar.h',
+				layer_num = linear_configs[linear]['layer_num'],
+				input_size = linear_configs[linear]['input_size'],
+				output_size = linear_configs[linear]['output_size']))
+	else:
+		lines.append(tmp1.substitute(
+				crossbar_file = 'crossbar_cuda.h',
+				layer_num = linear_configs[linear]['layer_num'],
+				input_size = linear_configs[linear]['input_size'],
+				output_size = linear_configs[linear]['output_size']))
 	
 	output_file.writelines(lines)
 	output_file.close()

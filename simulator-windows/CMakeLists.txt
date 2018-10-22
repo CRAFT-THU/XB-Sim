@@ -2,19 +2,21 @@ cmake_minimum_required(VERSION 3.5)
 project(simulator-windows)
 
 find_package(SystemCLanguage CONFIG REQUIRED)
+find_package(CUDA REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -lstdc++ -std=c++11")
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
 
 #set(INC_DIR /home/liuhe/systemc-2.3.2/include)
 #set(LINK_DIR /home/liuhe/systemc-2.3.2/lib)
 #
-#include_directories(${INC_DIR})
-#link_directories(${LINK_DIR})
+# include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/)
+set(LINK_DIR /usr/local/cuda-8.0/lib64)
+link_directories(${LINK_DIR})
 #link_libraries(systemc)
 
 set(SOURCE_FILES
         config.h
         numgen.h
-        crossbar.h
         DAC.h
         ADC.h
         stage_conv_1.h
@@ -52,11 +54,17 @@ set(SOURCE_FILES
         linear_buffer_16.h
         display.h
         main.cpp)
-# 配置gdb调试
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g3 -ggdb")
-set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
+set(MY_CUDA_FILES
+		crossbar.cu)
+## 配置gdb调试
+#set(CMAKE_BUILD_TYPE "Debug")
+#set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g3 -ggdb")
+#set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 
+CUDA_ADD_LIBRARY(MY_CUDA_LIB STATIC ${MY_CUDA_FILES})
 add_executable(simulator-windows ${SOURCE_FILES})
-target_link_libraries(simulator-windows SystemC::systemc)
+target_link_libraries(simulator-windows MY_CUDA_LIB /usr/local/cuda-8.0/lib64/libcurand.so)
+target_link_libraries(simulator-windows SystemC::systemc )
+

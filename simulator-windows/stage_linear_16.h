@@ -33,7 +33,7 @@ SC_MODULE(stage_linear_16) {
 				cell[i*CROSSBAR_W + j] = num;
 			}
 		}
-		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
+		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
 		cout << "load weights 16 complete. "  << filename << endl;
 	}
@@ -47,7 +47,7 @@ SC_MODULE(stage_linear_16) {
 
 	// run matrix multiply
 	void stage_linear_run() {
-		
+		/*
 		int input_buff[INPUT_LINEAR_1] = { 0 };
 		float _max = 0.0;
 		for (int i = 0; i < INPUT_LINEAR_1; ++i){
@@ -119,6 +119,19 @@ SC_MODULE(stage_linear_16) {
 		for (int i = 0; i < INPUT_LINEAR_2; i++) {
 			output[i].write(ad_buff[i]);
 		}
+		*/
+		float tmp_input[CROSSBAR_L] = { 0.0 };
+		float tmp_output[CROSSBAR_W] = { 0.0 };
+		// read data from former layer
+		for (int i = 0; i < INPUT_LINEAR_1; i++) {
+			tmp_input[CROSSBAR_L-INPUT_LINEAR_1+i] = input[i].read();
+		}
+		cb.run(tmp_input, tmp_output, false);
+		activation(tmp_output);
+		for (int i = 0; i < INPUT_LINEAR_2; i++) {
+			output[i].write(tmp_output[i]);
+		}
+
 		signal_out.write(signal_in.read());
 	}
 

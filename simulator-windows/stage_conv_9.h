@@ -23,6 +23,7 @@ SC_MODULE(stage_conv_9) {
 	CROSSBAR cb;
 	float pooling_buffer[CHANNELS_80][IMAGE_SIZE_16*POOLING_SIZE_1];
 	int pooling_pointer;
+	int print;
 
 	// read crossbar data from file
 	void init_crossbar() {
@@ -44,12 +45,13 @@ SC_MODULE(stage_conv_9) {
 				cell[i*CROSSBAR_W + j] = num;
 			}
 		}
-		cb.init(cell, CROSSBAR_L, CROSSBAR_W);
+		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
 		cout << "load weights 9 complete. " << filename << endl;
-
+		// cb.printcrossbar();
 		// parameters initialize
 		pooling_pointer = 0;
+		print = 0;
 	}
 
 	// activation function default relu
@@ -97,6 +99,7 @@ SC_MODULE(stage_conv_9) {
 
 	// run convolution
 	void stage_conv_run() {
+		/*
 		// read data
 		int input_buff[INPUT_SIZE*CHANNELS_80] = { 0 };
 		float _max = 0.0;
@@ -158,6 +161,11 @@ SC_MODULE(stage_conv_9) {
 			}
 		}
 
+		activation(ad_buff);
+		add_to_pooling_buffer(ad_buff);
+
+		max_pooling(); // pooling size POOLING_SIZE_1
+		*/
 		// for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i)
 		// {
 		// 	if (ad_buff[i] >= pow(2, 13))
@@ -166,15 +174,15 @@ SC_MODULE(stage_conv_9) {
 		// 		ad_buff[i] = (int(ad_buff[i] / 16.0) & 255);
 		// }
 
-		// float tmp_input[CROSSBAR_L] = { 0.0 };
-		// float tmp_output[CROSSBAR_W] = { 0.0 };
-		// // read data from former layer
-		// for (int i = 0; i < INPUT_SIZE*CHANNELS_80; i++) {
-		// 	tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + i] = input_buff[i];
-		// }
-		// cb.run(tmp_input, tmp_output);
-		activation(ad_buff);
-		add_to_pooling_buffer(ad_buff);
+		float tmp_input[CROSSBAR_L] = { 0.0 };
+		float tmp_output[CROSSBAR_W] = { 0.0 };
+		// read data from former layer
+		for (int i = 0; i < INPUT_SIZE*CHANNELS_80; i++) {
+			tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + i] = input[i].read();
+		}
+		cb.run(tmp_input, tmp_output, false);
+		activation(tmp_output);
+		add_to_pooling_buffer(tmp_output);
 
 		max_pooling(); // pooling size POOLING_SIZE_1
 	}
