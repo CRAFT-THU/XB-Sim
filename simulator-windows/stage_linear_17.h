@@ -1,7 +1,7 @@
 #ifndef _STAGE_LINEAR_17
 #define _STAGE_LINEAR_17
 
-#include "crossbar_cuda.h"
+#include "crossbar.h"
 #include "systemc.h"
 
 using namespace std;
@@ -47,11 +47,11 @@ SC_MODULE(stage_linear_17) {
 
 	// run matrix multiply
 	void stage_linear_run() {
-		/*
-		int input_buff[INPUT_LINEAR_2] = { 0 };
+		// with ad & da
+		float input_buff[INPUT_LINEAR_2] = { 0.0 };
 		float _max = 0.0;
 		for (int i = 0; i < INPUT_LINEAR_2; ++i){
-			input_buff[i] = int(input[i].read());
+			input_buff[i] = input[i].read();
 			if (input_buff[i] > _max)
 				_max = input_buff[i];
 		}
@@ -69,7 +69,7 @@ SC_MODULE(stage_linear_17) {
 		if (n > AD_WIDTH){
 			float para = pow(2, AD_WIDTH-n);
 			for (int i = 0; i < INPUT_LINEAR_2; ++i){
-				input_buff[i] = int(float(input_buff[i]) / para);
+				input_buff[i] = int(input_buff[i] * para);
 			}
 		}
 
@@ -82,29 +82,22 @@ SC_MODULE(stage_linear_17) {
 			float tmp_output[CROSSBAR_W] = { 0.0 };
 			// lower da_width bits
 			for (int j = 0; j < INPUT_LINEAR_2; ++j){
-				int bitnum = static_cast<int>(input_buff[j] & move);
+				int bitnum = static_cast<int>(int(input_buff[j]) & move);
 				dac.trans(bitnum, DA_WIDTH);
 				tmp_input[CROSSBAR_L - INPUT_LINEAR_2 + j] = float(bitnum);
-				input_buff[j] = input_buff[j] >> DA_WIDTH;
+				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
 			}
-			cb.run(tmp_input, tmp_output);
+			cb.run(tmp_input, tmp_output, false);
 			// ad and shift add
 			for (int j = 0; j < CROSSBAR_W; ++j){
-				float tmp = tmp_output[j] / XB17_I;
-				if (tmp > 1)
-					adc.trans(1.0);
-				else {
-					adc.trans(tmp);
-				}
-				// float tmp = adc.AD_out / (XB17_I * 0.15); // divide by xb_i?
-				// tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
-				// int res = 0;
+				// float tmp = tmp_output[j] / XB17_I;
 				// if (tmp > 1)
-				// 	res = int(pow(2, AD_WIDTH));
-				// else 
-				// 	res = int(tmp * pow(2, AD_WIDTH));
-				ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-				// ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
+				// 	adc.trans(1.0);
+				// else {
+				// 	adc.trans(tmp);
+				// }
+				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+				ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
 			}
 		}
 
@@ -119,20 +112,22 @@ SC_MODULE(stage_linear_17) {
 		for (int i = 0; i < OUTPUT_LINEAR; i++) {
 			output[i].write(ad_buff[i]);
 		}
-		*/
-		float tmp_input[CROSSBAR_L] = { 0.0 };
-		float tmp_output[CROSSBAR_W] = { 0.0 };
-		// read data from former layer
-		for (int i = 0; i < INPUT_LINEAR_2; i++) {
-			tmp_input[CROSSBAR_L-INPUT_LINEAR_2+i] = input[i].read();
-		}
-		cb.run(tmp_input, tmp_output, false);
-		activation(tmp_output);
-		for (int i = 0; i < OUTPUT_LINEAR; i++) {
-			output[i].write(tmp_output[i]);
-		}
-
 		signal_out.write(signal_in.read());
+
+		// without ad & da
+		// float tmp_input[CROSSBAR_L] = { 0.0 };
+		// float tmp_output[CROSSBAR_W] = { 0.0 };
+		// // read data from former layer
+		// for (int i = 0; i < INPUT_LINEAR_2; i++) {
+		// 	tmp_input[CROSSBAR_L-INPUT_LINEAR_2+i] = input[i].read();
+		// }
+		// cb.run(tmp_input, tmp_output, false);
+		// activation(tmp_output);
+		// for (int i = 0; i < OUTPUT_LINEAR; i++) {
+		// 	output[i].write(tmp_output[i]);
+		// }
+
+		// signal_out.write(signal_in.read());
 	}
 
 	SC_CTOR(stage_linear_17) {

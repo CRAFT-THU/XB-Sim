@@ -45,9 +45,8 @@ SC_MODULE(display) {
 		}
 		if (counter == labels[number])
 			total++;
+		cout << "pic: " << number << " res: " << counter << " label: " << labels[number] << " total_right: " << total << endl;
 		number++;
-		cout << total << endl;
-		cout << counter << endl;
 		ofstream fout("result.txt", ios::app);
 		fout << counter << endl;
 		fout.close();

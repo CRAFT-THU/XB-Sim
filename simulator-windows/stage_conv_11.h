@@ -3,7 +3,7 @@
 #ifndef _STAGE_CONV_11
 #define _STAGE_CONV_11
 
-#include "crossbar_cuda.h"
+#include "crossbar.h"
 #include "systemc.h"
 #include "ADC.h"
 #include "DAC.h"
@@ -99,12 +99,12 @@ SC_MODULE(stage_conv_11) {
 
 	// run convolution
 	void stage_conv_run() {
-		/*
+		// with ad & da
 		// read data
-		int input_buff[INPUT_SIZE*CHANNELS_80] = { 0 };
+		float input_buff[INPUT_SIZE*CHANNELS_80] = { 0.0 };
 		float _max = 0.0;
 		for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i){
-			input_buff[i] = int(input[i].read());
+			input_buff[i] = input[i].read();
 			if (input_buff[i] > _max)
 				_max = input_buff[i];
 		}
@@ -122,7 +122,7 @@ SC_MODULE(stage_conv_11) {
 		if (n > AD_WIDTH){
 			float para = pow(2, AD_WIDTH-n);
 			for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i){
-				input_buff[i] = int(float(input_buff[i]) / para);
+				input_buff[i] = int(input_buff[i] * para);
 			}
 		}
 
@@ -135,29 +135,22 @@ SC_MODULE(stage_conv_11) {
 			float tmp_output[CROSSBAR_W] = { 0.0 };
 			// lower da_width bits
 			for (int j = 0; j < INPUT_SIZE*CHANNELS_80; ++j){
-				int bitnum = static_cast<int>(input_buff[j] & move);
+				int bitnum = static_cast<int>(int(input_buff[j]) & move);
 				dac.trans(bitnum, DA_WIDTH);
 				tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + j] = float(bitnum);
-				input_buff[j] = input_buff[j] >> DA_WIDTH;
+				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
 			}
-			cb.run(tmp_input, tmp_output);
+			cb.run(tmp_input, tmp_output, false);
 			// ad and shift add
 			for (int j = 0; j < CROSSBAR_W; ++j){
-				float tmp = tmp_output[j] / XB11_I;
-				if (tmp > 1)
-					adc.trans(1.0);
-				else {
-					adc.trans(tmp);
-				}
-				// float tmp = adc.AD_out / (XB11_I * 0.15); // divide by xb_i?
-				// tmp = (tmp > 0)? floor(tmp+0.5): ceil(tmp-0.5);
-				// int res = 0;
+				// float tmp = tmp_output[j] / XB11_I;
 				// if (tmp > 1)
-				// 	res = int(pow(2, AD_WIDTH));
-				// else 
-				// 	res = int(tmp * pow(2, AD_WIDTH));
-				ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-				// ad_buff[j] = (ad_buff[j] > 0)? ad_buff[j]: 0;
+				// 	adc.trans(1.0);
+				// else {
+				// 	adc.trans(tmp);
+				// }
+				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+				ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
 			}
 		}
 
@@ -165,7 +158,7 @@ SC_MODULE(stage_conv_11) {
 		add_to_pooling_buffer(ad_buff);
 
 		max_pooling(); // pooling size POOLING_SIZE_1
-		*/
+		
 		// for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i)
 		// {
 		// 	if (ad_buff[i] >= pow(2, 13))
@@ -174,17 +167,18 @@ SC_MODULE(stage_conv_11) {
 		// 		ad_buff[i] = (int(ad_buff[i] / 16.0) & 255);
 		// }
 
-		float tmp_input[CROSSBAR_L] = { 0.0 };
-		float tmp_output[CROSSBAR_W] = { 0.0 };
-		// read data from former layer
-		for (int i = 0; i < INPUT_SIZE*CHANNELS_80; i++) {
-			tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + i] = input[i].read();
-		}
-		cb.run(tmp_input, tmp_output, false);
-		activation(tmp_output);
-		add_to_pooling_buffer(tmp_output);
+		// without ad & da
+		// float tmp_input[CROSSBAR_L] = { 0.0 };
+		// float tmp_output[CROSSBAR_W] = { 0.0 };
+		// // read data from former layer
+		// for (int i = 0; i < INPUT_SIZE*CHANNELS_80; i++) {
+		// 	tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_80 + i] = input[i].read();
+		// }
+		// cb.run(tmp_input, tmp_output, false);
+		// activation(tmp_output);
+		// add_to_pooling_buffer(tmp_output);
 
-		max_pooling(); // pooling size POOLING_SIZE_1
+		// max_pooling(); // pooling size POOLING_SIZE_1
 	}
 
 	SC_CTOR(stage_conv_11) {
