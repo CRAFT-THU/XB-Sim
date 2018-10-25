@@ -2,16 +2,21 @@ cmake_minimum_required(VERSION 3.5)
 project(simulator-windows)
 
 find_package(SystemCLanguage CONFIG REQUIRED)
-find_package(CUDA REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -lstdc++ -std=c++11")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
+#find_package(CUDA REQUIRED)
+#find_package(OpenMP REQUIRED)
+#if(OpenMP_FOUND)
+#message("OPENMP FOUND")
+#endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11 -O3")
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
 #set(INC_DIR /home/liuhe/systemc-2.3.2/include)
 #set(LINK_DIR /home/liuhe/systemc-2.3.2/lib)
 #
 # include_directories(/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/)
-set(LINK_DIR /usr/local/cuda-8.0/lib64)
-link_directories(${LINK_DIR})
+#set(LINK_DIR /usr/local/cuda-8.0/lib64)
+#link_directories(${LINK_DIR})
 #link_libraries(systemc)
 
 set(SOURCE_FILES
@@ -55,16 +60,11 @@ set(SOURCE_FILES
         display.h
         main.cpp)
 
-set(MY_CUDA_FILES
-		crossbar.cu)
-## 配置gdb调试
-#set(CMAKE_BUILD_TYPE "Debug")
-#set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g3 -ggdb")
-#set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+#set(MY_CUDA_FILES
+#		crossbar.cu)
 
-
-CUDA_ADD_LIBRARY(MY_CUDA_LIB STATIC ${MY_CUDA_FILES})
+#CUDA_ADD_LIBRARY(MY_CUDA_LIB STATIC ${MY_CUDA_FILES})
 add_executable(simulator-windows ${SOURCE_FILES})
-target_link_libraries(simulator-windows MY_CUDA_LIB /usr/local/cuda-8.0/lib64/libcurand.so)
+#target_link_libraries(simulator-windows MY_CUDA_LIB /usr/local/cuda-8.0/lib64/libcurand.so)
 target_link_libraries(simulator-windows SystemC::systemc )
 

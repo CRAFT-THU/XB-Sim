@@ -36,6 +36,8 @@
 #include "linear_buffer_16.h"
 #include "display.h"
 
+#include <time.h>
+
 int sc_main(int argc, char* argv[]) {
 	// define signals
 	sc_signal<bool> clock; // clock 
@@ -571,6 +573,8 @@ int sc_main(int argc, char* argv[]) {
 
 	// simulation start
 	// clock.write(1);
+	time_t start_time, end_time;
+	start_time = time(NULL);
 	for (int i = 0; i < PICTURE_NUM; i++){
 		//clock.write(0);
 		clock.write(1);
@@ -586,6 +590,8 @@ int sc_main(int argc, char* argv[]) {
 		}
 		
 	}
-	system("pause");
+	end_time = time(NULL);
+	cout << "Total time usage: " << (double)(end_time - start_time) << "s." << endl;
+	// system("pause");
 	return 0;
 }

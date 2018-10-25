@@ -1,14 +1,14 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#define DA_V 1.0f			//DA²Î¿¼µçÑ¹
-#define AD_V 1.0f			//AD²Î¿¼µçÑ¹
-#define DA_WIDTH 1			//DAÊäÈëÊý¾Ý¿í¶È
-#define AD_WIDTH 8			//ADÊä³öÊý¾Ý¿í¶È
-#define CROSSBAR_L 1152		//crossbar³¤¶È
-#define CROSSBAR_W 128		//crossbar¿í¶È
-#define CROSSBAR_N 4		//crossbar¸öÊý in one tile
-#define AD_REUSE_NUM 32		//AD¸´ÓÃ
+#define DA_V 1.0f			//DAï¿½Î¿ï¿½ï¿½ï¿½Ñ¹
+#define AD_V 1.0f			//ADï¿½Î¿ï¿½ï¿½ï¿½Ñ¹
+#define DA_WIDTH 1			//DAï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½
+#define AD_WIDTH 8			//ADï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½
+#define CROSSBAR_L 1152		//crossbarï¿½ï¿½ï¿½ï¿½
+#define CROSSBAR_W 128		//crossbarï¿½ï¿½ï¿½
+#define CROSSBAR_N 4		//crossbarï¿½ï¿½ï¿½ï¿½ in one tile
+#define AD_REUSE_NUM 32		//ADï¿½ï¿½ï¿½ï¿½
 // #define XB01_I 0.00492679327726364
 // #define XB2_I 0.00398490577936172
 // #define XB3_I 0.00257207546383142
@@ -34,10 +34,10 @@
 #define XB17_I 1.50 // 28.6738
 
 #define KERNEL_SIZE 3
-//ÊäÈë8bitÊý¾Ý¸öÊý, a convolution block
+//ï¿½ï¿½ï¿½ï¿½8bitï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½, a convolution block
 #define INPUT_SIZE KERNEL_SIZE*KERNEL_SIZE	
 #define CHANNELS_3 3		// each input picture channels
-#define PICTURE_NUM	100		// number of input pictures
+#define PICTURE_NUM	10		// number of input pictures
 #define IMAGE_SIZE_32 32		// input picture size
 #define IMAGE_SIZE_16 16
 #define IMAGE_SIZE_8 8

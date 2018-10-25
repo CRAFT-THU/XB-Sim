@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <omp.h>
 #include "config.h"
 
 typedef struct Crossbar
@@ -17,13 +18,13 @@ typedef struct Crossbar
 		CB_l = l;
 		CB_w = w;
 		CB_cell = new float[CB_l*CB_w];
-		memcpy(CB_cell, CB_cells, CB_l*CB_w * sizeof(float));
+//		memcpy(CB_cell, CB_cells, CB_l*CB_w * sizeof(float));
 		// transform cb_cell
-		/*for (int i = 0; i < CB_w; i++){
+		for (int i = 0; i < CB_w; i++){
 			for (int j = 0; j < CB_l; j++){
 				CB_cell[i*CB_l + j] = CB_cells[j*CB_w + i];
 			}
-		}*/
+		}
 	}
 
 	double gaussrand()
@@ -59,13 +60,19 @@ typedef struct Crossbar
 
 	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
 	{
+#pragma omp parallel for
 		for (int i = 0; i < w; i++)
 		{
 			float tmp = 0;
-			for (int j = 0; j < l; j++)
+			int tmp_k = i*l;
+			int j=0;
+#pragma omp parallel for shared(tmp_k, i) private(j) reduction(+:tmp)
+			for (j = 0; j < l; j++)
 			{
-				int tmp_k = j * w + i;
-				tmp += input[j] * (CB_cells[tmp_k] /*+ get_noise(CB_cells[i*l+j])*/);
+				//int tmp_k = i * l + j;
+				
+				float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ get_noise(CB_cells[i*l+j])*/);
+				tmp = tmp + tmpres;
 			}
 			output[i] = tmp;
 			//cout << output[i] << endl;

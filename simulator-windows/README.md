@@ -38,7 +38,7 @@
 	mkdir build
 	cd build
 	# 使用cmake对systemc编译
-	cmake ..
+	cmake -DCMAKE_BUILD_TYPE=Release ..
 	make
 	# 将可执行文件拷贝到外层文件夹并执行
 	cp simulator-windows ../
