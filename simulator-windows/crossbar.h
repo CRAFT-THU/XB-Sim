@@ -60,13 +60,14 @@ typedef struct Crossbar
 
 	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
 	{
-#pragma omp parallel for
-		for (int i = 0; i < w; i++)
+		int i = 0;
+//#pragma omp parallel for private(i)
+		for (i = 0; i < w; i++)
 		{
 			float tmp = 0;
 			int tmp_k = i*l;
 			int j=0;
-#pragma omp parallel for shared(tmp_k, i) private(j) reduction(+:tmp)
+//#pragma omp parallel for shared(tmp_k) private(j) reduction(+:tmp)
 			for (j = 0; j < l; j++)
 			{
 				//int tmp_k = i * l + j;
