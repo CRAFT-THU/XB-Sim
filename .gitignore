@@ -8,6 +8,7 @@
 *.sln.docstates
 .DS_store
 cmake-build-debug
+cmake-build-release
 build
 
 # User-specific files (MonoDevelop/Xamarin Studio)
