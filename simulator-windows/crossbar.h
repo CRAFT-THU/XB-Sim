@@ -60,36 +60,39 @@ typedef struct Crossbar
 		return noise;
 	}
 
-	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
+	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l, int split_width)
 	{
-		int i = 0;
-#pragma omp parallel for private(i)
-		for (int i = 0; i < w; i++)
-		{
-			float tmp = 0;
-			int tmp_k = i*l;
-			int j = 0;
-#pragma omp parallel for shared(tmp_k) private(j) reduction(+:tmp)
-			for (j = 0; j < l; j++)
-			{
-				float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ get_noise(CB_cells[tmp_k+j])*/);
-				tmp = tmp + tmpres;
+		// input split_width*l, cb_cells w*l(transformed), output split_width*w
+		for (int s = 0; s < split_width; s++){
+			int i = 0;
+
+// #pragma omp parallel for private(i)
+			for (i = 0; i < w; i++){
+				float tmp = 0;
+				int tmp_k = i*l;
+				int j = 0;
+
+// #pragma omp parallel for shared(tmp_k) private(j) reduction(+:tmp)
+				for (j = 0; j < l; j++){
+					float tmpres = input[s * l + j] * (CB_cells[tmp_k+j] + get_noise(CB_cells[tmp_k+j]));
+					tmp = tmp + tmpres;
+				}
+				output[s * w + i] = tmp;
 			}
-			output[i] = tmp;
-			//cout << output[i] << endl;
 		}
 	}
 
-	void run(float *input, float *output, bool noise=true)
+	void run(float *input, float *output, int split_width, bool noise=true)
 	{
-		float *output_d = new float[CB_w];
-		float *input_d = new float[CB_l];
-		memcpy(input_d, input, CB_l * sizeof(float));
-		MatrixMul(input_d, CB_cell, output_d, CB_w, CB_l);
-		memcpy(output, output_d, CB_w * sizeof(float));
+		float *output_d = new float[CB_w * split_width];
+		float *input_d = new float[CB_l * split_width];
+		memcpy(input_d, input, CB_l * split_width * sizeof(float));
+
+		MatrixMul(input_d, CB_cell, output_d, CB_w, CB_l, split_width);
+
+		memcpy(output, output_d, CB_w * split_width * sizeof(float));
 		delete[] output_d;
 		delete[] input_d;
-		// delete[] CB_cell;
 	}
 
 	void free_space()
