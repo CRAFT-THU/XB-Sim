@@ -12,11 +12,13 @@ typedef struct Crossbar
 	float *std_d;
 	int CB_l;
 	int CB_w;
+	int CB_n;
 	float *CB_cell;
 	void init(float *CB_cells, int n, int l, int w)
 	{
 		CB_l = l;
 		CB_w = w;
+		CB_n = n;
 		CB_cell = new float[CB_l*CB_w];
 //		memcpy(CB_cell, CB_cells, CB_l*CB_w * sizeof(float));
 		// transform cb_cell
@@ -61,18 +63,16 @@ typedef struct Crossbar
 	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
 	{
 		int i = 0;
-//#pragma omp parallel for private(i)
-		for (i = 0; i < w; i++)
+#pragma omp parallel for private(i)
+		for (int i = 0; i < w; i++)
 		{
 			float tmp = 0;
 			int tmp_k = i*l;
-			int j=0;
-//#pragma omp parallel for shared(tmp_k) private(j) reduction(+:tmp)
+			int j = 0;
+#pragma omp parallel for shared(tmp_k) private(j) reduction(+:tmp)
 			for (j = 0; j < l; j++)
 			{
-				//int tmp_k = i * l + j;
-				
-				float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ get_noise(CB_cells[i*l+j])*/);
+				float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ get_noise(CB_cells[tmp_k+j])*/);
 				tmp = tmp + tmpres;
 			}
 			output[i] = tmp;

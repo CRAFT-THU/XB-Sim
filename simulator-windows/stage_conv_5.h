@@ -101,63 +101,63 @@ SC_MODULE(stage_conv_5) {
 	void stage_conv_run() {
 		// with ad & da
 		// read data
-		float input_buff[INPUT_SIZE*CHANNELS_48] = { 0.0 };
-		float _max = 0.0;
-		for (int i = 0; i < INPUT_SIZE*CHANNELS_48; ++i){
-			input_buff[i] = input[i].read();
-			if (input_buff[i] > _max)
-				_max = input_buff[i];
-		}
-
-		// for movement
-		int move = 0;
-		for (int i = 0; i < DA_WIDTH; ++i){
-			move += int(pow(2, double(i)));
-		}
-
-		// scale input
-		int n = 0;
-		while (pow(2, double(n)) < _max)
-			n++;
-		if (n > AD_WIDTH){
-			float para = pow(2, AD_WIDTH-n);
-			for (int i = 0; i < INPUT_SIZE*CHANNELS_48; ++i){
-				input_buff[i] = int(input_buff[i] * para);
-			}
-		}
-
-		// DA->XB->AD
-		da dac(DA_V);
-		ad adc(AD_V);
-		float ad_buff[CROSSBAR_W] = { 0.0 };
-		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-			float tmp_input[CROSSBAR_L] = { 0.0 };
-			float tmp_output[CROSSBAR_W] = { 0.0 };
-			// lower da_width bits
-			for (int j = 0; j < INPUT_SIZE*CHANNELS_48; ++j){
-				int bitnum = static_cast<int>(int(input_buff[j]) & move);
-				dac.trans(bitnum, DA_WIDTH);
-				tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_48 + j] = float(bitnum);
-				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-			}
-			cb.run(tmp_input, tmp_output, false);
-			// ad and shift add
-			for (int j = 0; j < CROSSBAR_W; ++j){
-				// float tmp = tmp_output[j] / XB5_I;
-				// if (tmp > 1)
-				// 	adc.trans(1.0);
-				// else {
-				// 	adc.trans(tmp);
-				// }
-				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-				ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
-			}
-		}
-
-		activation(ad_buff);
-		add_to_pooling_buffer(ad_buff);
-
-		max_pooling(); // pooling size POOLING_SIZE_2
+//		float input_buff[INPUT_SIZE*CHANNELS_48] = { 0.0 };
+//		float _max = 0.0;
+//		for (int i = 0; i < INPUT_SIZE*CHANNELS_48; ++i){
+//			input_buff[i] = input[i].read();
+//			if (input_buff[i] > _max)
+//				_max = input_buff[i];
+//		}
+//
+//		// for movement
+//		int move = 0;
+//		for (int i = 0; i < DA_WIDTH; ++i){
+//			move += int(pow(2, double(i)));
+//		}
+//
+//		// scale input
+//		int n = 0;
+//		while (pow(2, double(n)) < _max)
+//			n++;
+//		if (n > AD_WIDTH){
+//			float para = pow(2, AD_WIDTH-n);
+//			for (int i = 0; i < INPUT_SIZE*CHANNELS_48; ++i){
+//				input_buff[i] = int(input_buff[i] * para);
+//			}
+//		}
+//
+//		// DA->XB->AD
+//		da dac(DA_V);
+//		ad adc(AD_V);
+//		float ad_buff[CROSSBAR_W] = { 0.0 };
+//		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+//			float tmp_input[CROSSBAR_L] = { 0.0 };
+//			float tmp_output[CROSSBAR_W] = { 0.0 };
+//			// lower da_width bits
+//			for (int j = 0; j < INPUT_SIZE*CHANNELS_48; ++j){
+//				int bitnum = static_cast<int>(int(input_buff[j]) & move);
+//				dac.trans(bitnum, DA_WIDTH);
+//				tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_48 + j] = float(bitnum);
+//				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+//			}
+//			cb.run(tmp_input, tmp_output, false);
+//			// ad and shift add
+//			for (int j = 0; j < CROSSBAR_W; ++j){
+//				// float tmp = tmp_output[j] / XB5_I;
+//				// if (tmp > 1)
+//				// 	adc.trans(1.0);
+//				// else {
+//				// 	adc.trans(tmp);
+//				// }
+//				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+//				ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
+//			}
+//		}
+//
+//		activation(ad_buff);
+//		add_to_pooling_buffer(ad_buff);
+//
+//		max_pooling(); // pooling size POOLING_SIZE_2
 		
 		// for (int i = 0; i < INPUT_SIZE*CHANNELS_48; ++i)
 		// {
@@ -168,17 +168,17 @@ SC_MODULE(stage_conv_5) {
 		// }
 
 		// without ad & da
-		// float tmp_input[CROSSBAR_L] = { 0.0 };
-		// float tmp_output[CROSSBAR_W] = { 0.0 };
-		// // read data from former layer
-		// for (int i = 0; i < INPUT_SIZE*CHANNELS_48; i++) {
-		// 	tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_48 + i] = input[i].read();
-		// }
-		// cb.run(tmp_input, tmp_output, false);
-		// activation(tmp_output);
-		// add_to_pooling_buffer(tmp_output);
+		 float tmp_input[CROSSBAR_L] = { 0.0 };
+		 float tmp_output[CROSSBAR_W] = { 0.0 };
+		 // read data from former layer
+		 for (int i = 0; i < INPUT_SIZE*CHANNELS_48; i++) {
+		 	tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_48 + i] = input[i].read();
+		 }
+		 cb.run(tmp_input, tmp_output, false);
+		 activation(tmp_output);
+		 add_to_pooling_buffer(tmp_output);
 
-		// max_pooling(); // pooling size POOLING_SIZE_2
+		 max_pooling(); // pooling size POOLING_SIZE_2
 	}
 
 	SC_CTOR(stage_conv_5) {

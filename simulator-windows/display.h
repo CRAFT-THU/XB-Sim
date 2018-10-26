@@ -47,7 +47,7 @@ SC_MODULE(display) {
 			total++;
 		cout << "pic: " << number << " res: " << counter << " label: " << labels[number] << " total_right: " << total << endl;
 		number++;
-		ofstream fout("result.txt", ios::app);
+		ofstream fout("result_1.txt", ios::app);
 		fout << "pic: " << number << " res: " << counter << " label: " << labels[number] << " total_right: " << total << endl;
 		fout.close();
 		signal_out.write(signal_in.read());
