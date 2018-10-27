@@ -2,16 +2,16 @@ cmake_minimum_required(VERSION 3.5)
 project(simulator-windows)
 
 find_package(SystemCLanguage CONFIG REQUIRED)
-find_package(CUDA REQUIRED)
-find_package(OpenMP REQUIRED)
+#find_package(CUDA REQUIRED)
+#find_package(OpenMP REQUIRED)
 #if(OpenMP_FOUND)
 #message("OPENMP FOUND")
 #endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11 -O3")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fopenmp")
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fopenmp")
 #set(INC_DIR /home/liuhe/systemc-2.3.2/include)
 #set(LINK_DIR /home/liuhe/systemc-2.3.2/lib)
 #
@@ -61,11 +61,11 @@ set(SOURCE_FILES
         display.h
         main.cpp)
 
-set(MY_CUDA_FILES
-		crossbar.cu)
+#set(MY_CUDA_FILES
+#		crossbar.cu)
 
-CUDA_ADD_LIBRARY(MY_CUDA_LIB STATIC ${MY_CUDA_FILES})
+#CUDA_ADD_LIBRARY(MY_CUDA_LIB STATIC ${MY_CUDA_FILES})
 add_executable(simulator-windows ${SOURCE_FILES})
-target_link_libraries(simulator-windows MY_CUDA_LIB /usr/local/cuda-8.0/lib64/libcurand.so)
+#target_link_libraries(simulator-windows MY_CUDA_LIB /usr/local/cuda-8.0/lib64/libcurand.so)
 target_link_libraries(simulator-windows SystemC::systemc )
 

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <cuda.h>
 #include <curand.h>
+#include <cublas_v2.h>
+#include <cuda_runtime.h>
 #include <time.h>
 #include <math.h>
 
@@ -182,18 +184,29 @@ void Crossbar::run(float *input, float *output, bool use_noise) {
     dim3 mul_numBlocks(CB_n, CB_w);
 
     if (use_noise) {
-        float *temp_noise, *temp_cell;
+        float *temp_noise, *temp_cell, *temp_2;
         cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
         cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
+        cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
         get_noise(temp_noise);
-        CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_noise, temp_cell, CB_w, CB_l);
-        CUDA_MatrixMui<<<mul_numBlocks, 1>>>(input_d, temp_cell, output_d, CB_w, CB_l);
+        CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_w, CB_l);
+        CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_w, CB_l);
+
+        CUDA_MatrixMui<<<mul_numBlocks, 1>>>(input_d, temp_cell, output_d, CB_l, CB_w);
 
         cudaFree(temp_noise);
         cudaFree(temp_cell);
+        cudaFree(temp_2);
     }
     else {
         CUDA_MatrixMui<<<mul_numBlocks, 1>>>(input_d, CB_cell, output_d, CB_l, CB_w);
+
+        // use cublas
+//        cublasHandle_t handle;
+//        cublasCreate(&handle);
+//        float alpha = 1.0f, beta = 0.0f;
+//        cublasSgemv(handle, CUBLAS_OP_T, CB_l, CB_w, &alpha, CB_cell, CB_l, input_d, 1, &beta, output_d, 1);
+//        cublasDestroy(handle);
     }
     cudaMemcpy(output, output_d, CB_n * CB_w * sizeof(float), cudaMemcpyDeviceToHost);
     cudaFree( input_d );

@@ -7,6 +7,7 @@
 #include "systemc.h"
 #include "ADC.h"
 #include "DAC.h"
+#include <omp.h>
 
 using namespace std;
 
@@ -129,57 +130,61 @@ SC_MODULE(stage_conv_13) {
 		// DA->XB->AD
 		da dac(DA_V);
 		ad adc(AD_V);
-		// float ad_buff[CROSSBAR_W] = { 0.0 };
-		// for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-		// 	float tmp_input[CROSSBAR_L] = { 0.0 };
-		// 	float tmp_output[CROSSBAR_W] = { 0.0 };
-		// 	// lower da_width bits
-		// 	for (int j = 0; j < INPUT_SIZE*CHANNELS_128; ++j){
-		// 		int bitnum = static_cast<int>(int(input_buff[j]) & move);
-		// 		dac.trans(bitnum, DA_WIDTH);
-		// 		tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_128 + j] = float(bitnum);
-		// 		input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-		// 	}
-		// 	cb.run(tmp_input, tmp_output, false);
-		// 	// ad and shift add
-		// 	for (int j = 0; j < CROSSBAR_W; ++j){
-		// 		// float tmp = tmp_output[j] / XB13_I;
-		// 		// if (tmp > 1)
-		// 		// 	adc.trans(1.0);
-		// 		// else {
-		// 		// 	adc.trans(tmp);
-		// 		// }
-		// 		// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-		// 		ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
-		// 	}
-		// }
-		float ad_buff[CROSSBAR_W] = { 0.0 };
-		int split_width = AD_WIDTH/DA_WIDTH;
-		float tmp_input[CROSSBAR_L*AD_WIDTH/DA_WIDTH] = { 0.0 };
-		float tmp_output[CROSSBAR_W*AD_WIDTH/DA_WIDTH] = { 0.0 };
-		for (int i = 0; i < split_width; ++i){
-			// lower da_width bits
-			for (int j = 0; j < INPUT_SIZE*CHANNELS_128; ++j){
-				int bitnum = static_cast<int>(int(input_buff[j]) & move);
-				dac.trans(bitnum, DA_WIDTH);
-				tmp_input[CROSSBAR_L * i + CROSSBAR_L - INPUT_SIZE * CHANNELS_128 + j] = float(bitnum);
-				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-			}
-		}
-		cb.run(tmp_input, tmp_output, split_width, false);
-		// ad and shift add
-		for (int i = 0; i < split_width; ++i){
-			for (int j = 0; j < CROSSBAR_W; ++j){
-				// float tmp = tmp_output[j] / XB13_I;
-				// if (tmp > 1)
-				// 	adc.trans(1.0);
-				// else {
-				// 	adc.trans(tmp);
-				// }
-				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-				ad_buff[j] = (tmp_output[i * CROSSBAR_W + j]) * pow(2, i) + ad_buff[j];
-			}
-		}
+        float ad_buff[CROSSBAR_W] = { 0.0 };
+        for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+            float tmp_input[CROSSBAR_L] = { 0.0 };
+            float tmp_output[CROSSBAR_W] = { 0.0 };
+            // lower da_width bits
+            for (int j = 0; j < INPUT_SIZE*CHANNELS_128; ++j){
+                int bitnum = static_cast<int>(int(input_buff[j]) & move);
+                dac.trans(bitnum, DA_WIDTH);
+                tmp_input[CROSSBAR_L - INPUT_SIZE * CHANNELS_128 + j] = float(bitnum);
+                input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+            }
+            cb.run(tmp_input, tmp_output, false);
+            // ad and shift add
+            for (int j = 0; j < CROSSBAR_W; ++j){
+                // float tmp = tmp_output[j] / XB13_I;
+                // if (tmp > 1)
+                // 	adc.trans(1.0);
+                // else {
+                // 	adc.trans(tmp);
+                // }
+                // ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+                ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
+            }
+        }
+//		float ad_buff[CROSSBAR_W] = { 0.0 };
+//		int split_width = AD_WIDTH/DA_WIDTH;
+//		float tmp_input[CROSSBAR_L*AD_WIDTH/DA_WIDTH] = { 0.0 };
+//		float tmp_output[CROSSBAR_W*AD_WIDTH/DA_WIDTH] = { 0.0 };
+//		for (int i = 0; i < split_width; ++i){
+//			// lower da_width bits
+//			int j = 0;
+//#pragma omp parallel for private(j) shared(i, tmp_input, input_buff, move)
+//			for (j = 0; j < INPUT_SIZE*CHANNELS_128; ++j){
+//				int bitnum = static_cast<int>(int(input_buff[j]) & move);
+//				dac.trans(bitnum, DA_WIDTH);
+//				tmp_input[CROSSBAR_L * i + CROSSBAR_L - INPUT_SIZE * CHANNELS_128 + j] = float(bitnum);
+//				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+//			}
+//		}
+//		cb.run(tmp_input, tmp_output, split_width, false);
+//		// ad and shift add
+//		for (int i = 0; i < split_width; ++i){
+//			int j = 0;
+//#pragma omp parallel for private(j) shared(i, tmp_output, ad_buff)
+//			for (int j = 0; j < CROSSBAR_W; ++j){
+//				// float tmp = tmp_output[j] / XB13_I;
+//				// if (tmp > 1)
+//				// 	adc.trans(1.0);
+//				// else {
+//				// 	adc.trans(tmp);
+//				// }
+//				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
+//				ad_buff[j] = (tmp_output[i * CROSSBAR_W + j]) * pow(2, i) + ad_buff[j];
+//			}
+//		}
 		activation(ad_buff);
 		add_to_pooling_buffer(ad_buff);
 
