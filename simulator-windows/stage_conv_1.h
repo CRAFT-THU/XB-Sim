@@ -144,14 +144,20 @@ SC_MODULE(stage_conv_1) {
             cb.run(tmp_input, tmp_output, false);
             // ad and shift add
             for (int j = 0; j < CROSSBAR_W; ++j){
-                // float tmp = tmp_output[j] / XB1_I;
-                // if (tmp > 1)
-                // 	adc.trans(1.0);
-                // else {
-                // 	adc.trans(tmp);
-                // }
-                // ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-                ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
+                float tmp = tmp_output[j] / XB1_I;
+                if (tmp > 1)
+                	adc.trans(1.0);
+                else if (tmp < -1) 
+                	adc.trans(-1.0);
+                else 
+                	adc.trans(tmp);
+                int tmp_ad = int(adc.AD_out);
+                // if (tmp_ad > 0)
+                // 	tmp_ad = floor(tmp_ad + 0.5);
+                // else tmp_ad = ceil(tmp_ad - 0.5);
+                ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
+                // ad_buff[j] = (ad_buff[j] > 0) ? ad_buff[j]: 0;
+                // ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
             }
         }
 //		float ad_buff[CROSSBAR_W] = { 0.0 };

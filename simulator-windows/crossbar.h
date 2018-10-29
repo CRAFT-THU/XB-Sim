@@ -25,7 +25,7 @@ typedef struct Crossbar
 		// transform cb_cell
 		for (int i = 0; i < CB_w; i++){
 			for (int j = 0; j < CB_l; j++){
-				CB_cell[i*CB_l + j] = CB_cells[j*CB_w + i];
+				CB_cell[i*CB_l + j] = CB_cells[j*CB_w + i]; // +get_noise(CB_cells[j*CB_w + i]);
 			}
 		}
 		get_std();
@@ -75,12 +75,12 @@ typedef struct Crossbar
 	void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
 	{
         int i = 0;
-#pragma omp parallel for private(i) //shared(w, l)
+// #pragma omp parallel for private(i) //shared(w, l)
         for (i = 0; i < w; i++){
             float tmp = 0;
             int tmp_k = i*l;
             int j = 0;
-#pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cells)
+// #pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cells)
             for (j = 0; j < l; j++){
                 float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ (CB_std[tmp_k+j] * gaussrand())*/);
                 tmp = tmp + tmpres;
