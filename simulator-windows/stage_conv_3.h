@@ -127,6 +127,8 @@ SC_MODULE(stage_conv_3) {
 			float para = pow(2, AD_WIDTH-n);
 			for (int i = 0; i < INPUT_SIZE*CHANNELS_32; ++i){
 				input_buff[i] = int(input_buff[i] * para);
+				if (input_buff[i] > 255)
+					input_buff[i] = 255;
 			}
 		}
 
