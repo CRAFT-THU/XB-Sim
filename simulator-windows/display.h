@@ -46,10 +46,10 @@ SC_MODULE(display) {
 		if (counter == labels[number])
 			total++;
 		cout << "pic: " << number << " res: " << counter << " label: " << labels[number] << " total_right: " << total << endl;
-		number++;
 		ofstream fout("result_1.txt", ios::app);
 		fout << "pic: " << number << " res: " << counter << " label: " << labels[number] << " total_right: " << total << endl;
 		fout.close();
+		number++;
 		signal_out.write(signal_in.read());
 	}
 

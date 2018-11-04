@@ -118,8 +118,11 @@ SC_MODULE(stage_conv_10) {
 
 		// scale input
 		int n = 0;
-		while (pow(2, double(n)) < _max)
-			n++;
+//		while (pow(2, double(n)) < _max)
+//			n++;
+        if (10 == 1)
+            n = 8;
+        else n = 14;
 		if (n > AD_WIDTH){
 			float para = pow(2, AD_WIDTH-n);
 			for (int i = 0; i < INPUT_SIZE*CHANNELS_80; ++i){

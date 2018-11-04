@@ -592,6 +592,6 @@ int sc_main(int argc, char* argv[]) {
 	}
 	end_time = time(NULL);
 	cout << "Total time usage: " << (double)(end_time - start_time) << "s." << endl;
-	system("pause");
+//	system("pause");
 	return 0;
 }
