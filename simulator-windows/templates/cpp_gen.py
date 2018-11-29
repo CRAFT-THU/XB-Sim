@@ -61,9 +61,11 @@ linear_buffer_configs = [
 	{'layer_num':16, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_2'}
 ]
 
+prefix = '../generated/'
+
 for layer in range(0, conv_layers):
 	output_name = r'stage_conv_%d.h' % (layer+1)
-	output_file = open(output_name, 'w')
+	output_file = open(prefix+output_name, 'w')
 
 	lines = []
 
@@ -94,7 +96,7 @@ for layer in range(0, conv_layers):
 
 for buff in range(0, conv_buffer):
 	output_name = r'conv_buffer_%d.h' % (buff+1)
-	output_file = open(output_name, 'w')
+	output_file = open(prefix+output_name, 'w')
 
 	lines = []
 
@@ -113,7 +115,7 @@ for buff in range(0, conv_buffer):
 
 for linear in range(0, linear_layes):
 	output_name = r'stage_linear_%d.h' % (linear_configs[linear]['layer_num'])
-	output_file = open(output_name, 'w')
+	output_file = open(prefix+output_name, 'w')
 
 	lines = []
 
@@ -140,7 +142,7 @@ for linear in range(0, linear_layes):
 
 for line_buff in range(0, linear_layes):
 	output_name = r'linear_buffer_%d.h' % (linear_buffer_configs[line_buff]['layer_num'])
-	output_file = open(output_name, 'w')
+	output_file = open(prefix+output_name, 'w')
 
 	lines = []
 
