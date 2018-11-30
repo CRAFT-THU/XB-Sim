@@ -63,6 +63,16 @@ linear_buffer_configs = [
 
 prefix = '../generated/'
 
+def mkdir(path):
+	folder = os.path.exists(path)
+	if not folder:
+		os.makedirs(path)
+		print('new generated folder')
+	else:
+		print('generated folder already exists')
+
+mkdir(prefix)
+
 for layer in range(0, conv_layers):
 	output_name = r'stage_conv_%d.h' % (layer+1)
 	output_file = open(prefix+output_name, 'w')
