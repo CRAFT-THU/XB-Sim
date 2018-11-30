@@ -9,15 +9,15 @@ if(${USE_CUDA} STREQUAL "on")
 	find_package(CUDA REQUIRED)
 endif(${USE_CUDA} STREQUAL "on")
 
-# find_package(OpenMP REQUIRED)
+find_package(OpenMP REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11 -O3")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fopenmp")
 if(${USE_CUDA} STREQUAL "on")
 	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
 endif(${USE_CUDA} STREQUAL "on")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
 
 if(${USE_CUDA} STREQUAL "on")
 	execute_process(COMMAND python cpp_gen.py --cuda true
