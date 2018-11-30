@@ -38,7 +38,10 @@
 	mkdir build
 	cd build
 	# 使用cmake对systemc编译
-	cmake -DCMAKE_BUILD_TYPE=Release ..
+	# 默认不使用GPU进行计算
+	cmake .. -DCMAKE_BUILD_TYPE=Release
+	# 或者使用GPU计算
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_CUDA=on 
 	make
 	# 将可执行文件拷贝到外层文件夹并执行
 	cp simulator-windows ../
@@ -77,16 +80,10 @@
 
 	在`cpp_gen.py`文件中，存放了所需网络的结构列表，可通过修改该文件来生成不同的网络结构。
 
-	* 代码生成时，须在命令行中执行如下语句（使用CPU或者GPU计算，二选一）：
+	* 代码生成语句为`CMakeLists.txt`文件中的`execute_process`指令，受编译选项USE_CUDA影响，不需要单独执行代码生成指令。生成的代码将放入`generated`文件夹下。
 
-	```Shell
-	# 使用CPU进行计算
-	python cpp_gen.py
-	# 或者使用GPU进行计算
-	python cpp_gen.py --cuda true
-	```
 	可以生成所需的网络结构头文件`stage_conv_*.h`, `conv_buffer_*.h`, `stage_linear_*.h`, `linear_buffer_*.h`. <br>
-	在`main.cpp`文件中包含以上生成的头文件，并且根据各层之间的连接关系，在`main.cpp`文件中通过`sc_signal`进行串联。
+	在`headers.cpp`文件中包含以上生成的头文件，并且根据各层之间的连接关系，在`main.cpp`文件中通过`sc_signal`进行串联。
 
 &nbsp;
 
@@ -112,7 +109,6 @@
 
 
 ## 下一步工作
-- 对AD/DA部分进一步完善
+
 - 支持模块复用
 - 每个Tile中多个Crossbar的完善
-- 对CPU和GPU的计算部分进一步完善
