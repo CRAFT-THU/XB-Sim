@@ -1,8 +1,10 @@
 #ifndef _STAGE_LINEAR_17
 #define _STAGE_LINEAR_17
 
-#include "crossbar.h"
+#include "../crossbar.h"
 #include "systemc.h"
+#include "../ADC.h"
+#include "../DAC.h"
 #include <omp.h>
 
 using namespace std;

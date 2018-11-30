@@ -2,7 +2,7 @@
 #define _CONV_BUFFER_1
 
 #include "systemc.h"
-#include "config.h"
+#include "../config.h"
 
 using namespace std;
 

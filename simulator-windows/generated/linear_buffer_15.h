@@ -2,7 +2,7 @@
 #define _LINEAR_BUFFER_15
 
 #include "systemc.h"
-#include "config.h"
+#include "../config.h"
 
 using namespace std;
 

@@ -3,10 +3,10 @@
 #ifndef _STAGE_CONV_14
 #define _STAGE_CONV_14
 
-#include "crossbar.h"
+#include "../crossbar.h"
 #include "systemc.h"
-#include "ADC.h"
-#include "DAC.h"
+#include "../ADC.h"
+#include "../DAC.h"
 #include <omp.h>
 
 using namespace std;
