@@ -1,3 +1,115 @@
+# A SystemC Simulator for ReRam-based Neural Network
+This project is a simulator for ReRam Crossbar devices. It can be compiled using cmake and running on Windows/Linux.
+
+### Contec List
+- <a href='#Install'>Install</a>
+- <a href='#Dataset'>Dataset</a>
+- <a href='#Run'>Run</a>
+- <a href='#Performance'>Performance</a>
+- <a href='#Case'>Case study</a>
+- <a href='#Next'>Next work</a>
+
+&nbsp;
+&nbsp;
+
+## Install
+- Install [SystemC Library](http://www.accellera.org/downloads/standards/systemc)
+	* For Linux，download the code to local directory and unzip the source code. Step into its directory, `~/systemc-2.3.2` e.g. and run following commands:
+	```Shell
+	# Init build directory
+	mkdir build
+	cd build
+	# using cmake to compile systemc
+	cmake ..
+	make
+	```
+- (Option)Install [Cuda Library](https://developer.nvidia.com/cuda-downloads)
+	* Follow the instruction step on cuda website.
+- Configuration
+	* Download this repo into your own path.
+	* For linux，using Cmake to compile the code。This project has already provide CMakeLists.txt, users could change the link libraries according your own needs. Execute following command in shell:
+	```Shell
+	# Init build directory
+	mkdir build
+	cd build
+	# using cmake to compile 
+	# default not using GPU
+	cmake .. -DCMAKE_BUILD_TYPE=Release
+	# or using GPU
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_CUDA=on 
+	make
+	# copy the executable file to upper directory and run
+	cp simulator-windows ../
+	./simulator-windows
+	```
+
+&nbsp;
+
+## Dataset
+- The dataset used in this project is the Test part in cifar-10 dataset, 10000 pictures in total. And they are already transformed into 3\*1024(32\*32) and put into `input`.
+- Labels of Testset is `labels.csv` and put under source code directory.
+
+&nbsp;
+
+
+## Run
+- Parameter Configuration
+	* Circuit parameters(`config.h`)
+
+	| DA Reference Voltage | AD Reference Voltage | DA width | AD width | Crossbar length | Crossbar width | Number of Crossbar in each Tile |
+	|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+	| DA_V | AD_V | DA_WIDTH | AD_WIDTH | CROSSBAR_L | CROSSBAR_W | CROSSBAR_N |
+
+	* Neural Network parameters(`config.h`)
+
+	| Kernel size | Input data size | Channels of picture | Size of picture | Number of input picture | pooling size |
+	|:-:|:-:|:-:|:-:|:-:|:-:|
+	| KERNEL_SIZE | INPUT_SIZE(KERNEL_SIZE\*KERNEL_SIZE) | CHANNELS_3/32/48/80/128 | IMAGE_SIZE_32/16/8 | PICTURE_NUM | POOLING_SIZE_1/2/8 |
+
+- Code Generation of Neural Network Structure
+	* This project generate codes by pre-defined template module using Python code `cpp_gen.py`. The template code of each module is:
+
+	| `conv_cpp.template` | `conv_buffer_cpp.template` | `linear_cpp.template` | `linear_buffer_cpp.template`|
+	|:-:|:-:|:-:|:-:|
+	| Convolution layer module template | Buffer module template between convolution layer  | Fully connected layer module template | Buffer module between fully connected layer |
+
+	The network needed structure list stored in `cpp_gen.py` and users can change this file to generate different NN structure
+
+	* The code generation command is `execute_process` in `CMakeLists.txt`, and it is influenced by compile option USE_CUDA. Users don't have to run code generation command separately. The generated code will be put into `generated` directory.
+
+	It will generate the headers of NN structure `stage_conv_*.h`, `conv_buffer_*.h`, `stage_linear_*.h`, `linear_buffer_*.h`. <br>
+	And they will be included in `headers.cpp`, using `sc_signal` to connect layers in `main.cpp`.
+
+&nbsp;
+
+
+## Performance
+- Accuracy
+	* AD/DA module included：83.5%
+	* with noise：82.4%
+
+
+
+&nbsp;
+
+
+## Case
+- Using VGG network to classify CIFAR-10 dataset
+	* This project generated a VGG network by default, it contains 15 convolution layers and 2 fully connected layers, all of the weights (high dimension convolution kernel) have been transformed into 2-D matrix in `CROSSBAR_L*CROSSBAR_W` for hte computation of ReRam Crossbar.
+	* All weight matrices has been transformed before and stored in `weights`. The weight conversion just like the following figure:
+	![avatar](WeightConvert.png)
+
+&nbsp;
+&nbsp;
+
+
+## Next
+
+- Support module replication
+- Multi Crossbars in each Tile
+
+
+
 # 面向Crossbar的SystemC模拟器
 本项目是面向Crossbar器件的模拟器，支持Visual Studio和cmake编译，可运行在Windows和Linux(Mac)下。
 
