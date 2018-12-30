@@ -1,7 +1,7 @@
 # A SystemC Simulator for ReRam-based Neural Network
 This project is a simulator for ReRam Crossbar devices. It can be compiled using cmake and running on Windows/Linux.
 
-### Contec List
+### Content List
 - <a href='#Install'>Install</a>
 - <a href='#Dataset'>Dataset</a>
 - <a href='#Run'>Run</a>
