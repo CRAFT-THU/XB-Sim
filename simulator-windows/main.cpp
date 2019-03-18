@@ -46,10 +46,10 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<int> signal_32;
 	sc_signal<int> signal_33;
 	sc_signal<int> signal_34;
-    sc_signal<int> signal_35;
-    sc_signal<int> signal_36;
-    sc_signal<int> signal_37;
-    sc_signal<int> signal_38;
+	sc_signal<int> signal_35;
+	sc_signal<int> signal_36;
+	sc_signal<int> signal_37;
+	sc_signal<int> signal_38;
 	// int signal_counter = 0;
 
 	sc_signal<float> send_data1[INPUT_SIZE*CHANNELS_3];
@@ -69,9 +69,9 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<float> conv_14_out[CHANNELS_128];
 	sc_signal<float> conv_15_out[CHANNELS_128];
 	sc_signal<float> linear_1_out[INPUT_LINEAR_2];
-    sc_signal<float> linear_2_out[INPUT_LINEAR_3];
-    sc_signal<float> linear_3_out[INPUT_LINEAR_4];
-    sc_signal<float> linear_4_out[OUTPUT_LINEAR];
+	sc_signal<float> linear_2_out[INPUT_LINEAR_3];
+	sc_signal<float> linear_3_out[INPUT_LINEAR_4];
+	sc_signal<float> linear_4_out[OUTPUT_LINEAR];
 
 	sc_signal<float> buff_1_out[CHANNELS_32][INPUT_SIZE];
 	sc_signal<float> buff_2_out[CHANNELS_32][INPUT_SIZE];
@@ -89,8 +89,8 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<float> buff_14_out[CHANNELS_128][INPUT_SIZE];
 	sc_signal<float> buff_linear_1_out[INPUT_LINEAR_1];
 	sc_signal<float> buff_linear_2_out[INPUT_LINEAR_2];
-    sc_signal<float> buff_linear_3_out[INPUT_LINEAR_3];
-    sc_signal<float> buff_linear_4_out[INPUT_LINEAR_4];
+	sc_signal<float> buff_linear_3_out[INPUT_LINEAR_3];
+	sc_signal<float> buff_linear_4_out[INPUT_LINEAR_4];
 	
 	// number generator
 	numgen Num_gen("number_generator");
@@ -536,51 +536,51 @@ int sc_main(int argc, char* argv[]) {
 	linear_2.signal_in(signal_32);
 	linear_2.signal_out(signal_33);
 
-    // linear buffer 3
-    linear_buffer_17 linear_buff_3("linear_buffer_17");
-    for (int j = 0; j < INPUT_LINEAR_3; j++) {
-        linear_buff_3.input[j](linear_2_out[j]);
-    }
-    for (int j = 0; j < INPUT_LINEAR_3; j++) {
-        linear_buff_3.output[j](buff_linear_3_out[j]);
-    }
-    linear_buff_3.signal_in(signal_33);
-    linear_buff_3.signal_out(signal_34);
-    linear_buff_3.clock_1(clock_1);
+	// linear buffer 3
+	linear_buffer_17 linear_buff_3("linear_buffer_17");
+	for (int j = 0; j < INPUT_LINEAR_3; j++) {
+		linear_buff_3.input[j](linear_2_out[j]);
+	}
+	for (int j = 0; j < INPUT_LINEAR_3; j++) {
+		linear_buff_3.output[j](buff_linear_3_out[j]);
+	}
+	linear_buff_3.signal_in(signal_33);
+	linear_buff_3.signal_out(signal_34);
+	linear_buff_3.clock_1(clock_1);
 
-    // linear module
-    stage_linear_18 linear_3("stage_linear_18");
-    for (int j = 0; j < INPUT_LINEAR_3; j++) {
-        linear_3.input[j](buff_linear_3_out[j]);
-    }
-    for (int j = 0; j < INPUT_LINEAR_4; j++) {
-        linear_3.output[j](linear_3_out[j]);
-    }
-    linear_3.signal_in(signal_34);
-    linear_3.signal_out(signal_35);
+	// linear module
+	stage_linear_18 linear_3("stage_linear_18");
+	for (int j = 0; j < INPUT_LINEAR_3; j++) {
+		linear_3.input[j](buff_linear_3_out[j]);
+	}
+	for (int j = 0; j < INPUT_LINEAR_4; j++) {
+		linear_3.output[j](linear_3_out[j]);
+	}
+	linear_3.signal_in(signal_34);
+	linear_3.signal_out(signal_35);
 
-    // linear buffer 4
-    linear_buffer_18 linear_buff_4("linear_buffer_18");
-    for (int j = 0; j < INPUT_LINEAR_4; j++) {
-        linear_buff_4.input[j](linear_4_out[j]);
-    }
-    for (int j = 0; j < INPUT_LINEAR_4; j++) {
-        linear_buff_4.output[j](buff_linear_4_out[j]);
-    }
-    linear_buff_4.signal_in(signal_35);
-    linear_buff_4.signal_out(signal_36);
-    linear_buff_4.clock_1(clock_1);
+	// linear buffer 4
+	linear_buffer_18 linear_buff_4("linear_buffer_18");
+	for (int j = 0; j < INPUT_LINEAR_4; j++) {
+		linear_buff_4.input[j](linear_4_out[j]);
+	}
+	for (int j = 0; j < INPUT_LINEAR_4; j++) {
+		linear_buff_4.output[j](buff_linear_4_out[j]);
+	}
+	linear_buff_4.signal_in(signal_35);
+	linear_buff_4.signal_out(signal_36);
+	linear_buff_4.clock_1(clock_1);
 
-    // linear module
-    stage_linear_19 linear_4("stage_linear_19");
-    for (int j = 0; j < INPUT_LINEAR_4; j++) {
-        linear_4.input[j](buff_linear_4_out[j]);
-    }
-    for (int j = 0; j < OUTPUT_LINEAR; j++) {
-        linear_4.output[j](linear_4_out[j]);
-    }
-    linear_4.signal_in(signal_36);
-    linear_4.signal_out(signal_37);
+	// linear module
+	stage_linear_19 linear_4("stage_linear_19");
+	for (int j = 0; j < INPUT_LINEAR_4; j++) {
+		linear_4.input[j](buff_linear_4_out[j]);
+	}
+	for (int j = 0; j < OUTPUT_LINEAR; j++) {
+		linear_4.output[j](linear_4_out[j]);
+	}
+	linear_4.signal_in(signal_36);
+	linear_4.signal_out(signal_37);
 
 	// display module
 	display D("display_module");
