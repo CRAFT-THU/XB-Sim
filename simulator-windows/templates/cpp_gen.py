@@ -12,8 +12,8 @@ args = parser.parse_args()
 
 conv_layers = 15
 conv_buffer = 14
-linear_layes = 2
-linear_buffer = 2
+linear_layes = 4
+linear_buffer = 4
 use_cuda = args.cuda
 
 conv_configs = [
