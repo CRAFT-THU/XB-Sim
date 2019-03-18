@@ -52,26 +52,26 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<int> signal_38;
 	// int signal_counter = 0;
 
-	sc_signal<float> *send_data1 = new sc_signal<float>[INPUT_SIZE*CHANNELS_3];
-	sc_signal<float> *conv_1_out = new sc_signal<float>[CHANNELS_32];
-	sc_signal<float> *conv_2_out = new sc_signal<float>[CHANNELS_32];
-	sc_signal<float> *conv_3_out = new sc_signal<float>[CHANNELS_32];
-	sc_signal<float> *conv_4_out = new sc_signal<float>[CHANNELS_48];
-	sc_signal<float> *conv_5_out = new sc_signal<float>[CHANNELS_48];
-	sc_signal<float> *conv_6_out = new sc_signal<float>[CHANNELS_80];
-	sc_signal<float> *conv_7_out = new sc_signal<float>[CHANNELS_80];
-	sc_signal<float> *conv_8_out = new sc_signal<float>[CHANNELS_80];
-	sc_signal<float> *conv_9_out = new sc_signal<float>[CHANNELS_80];
-	sc_signal<float> *conv_10_out = new sc_signal<float>[CHANNELS_80];
-	sc_signal<float> *conv_11_out = new sc_signal<float>[CHANNELS_128];
-	sc_signal<float> *conv_12_out = new sc_signal<float>[CHANNELS_128];
-	sc_signal<float> *conv_13_out = new sc_signal<float>[CHANNELS_128];
-	sc_signal<float> *conv_14_out = new sc_signal<float>[CHANNELS_128];
-	sc_signal<float> *conv_15_out = new sc_signal<float>[CHANNELS_128];
-	sc_signal<float> *linear_1_out = new sc_signal<float>[INPUT_LINEAR_2];
-	sc_signal<float> *linear_2_out = new sc_signal<float>[INPUT_LINEAR_3];
-	sc_signal<float> *linear_3_out = new sc_signal<float>[INPUT_LINEAR_4];
-	sc_signal<float> *linear_4_out = new sc_signal<float>[OUTPUT_LINEAR];
+	sc_signal<float> *send_data1 = new sc_signal<float>[INPUT_SIZE*CHANNELS_3]();
+	sc_signal<float> *conv_1_out = new sc_signal<float>[CHANNELS_32]();
+	sc_signal<float> *conv_2_out = new sc_signal<float>[CHANNELS_32]();
+	sc_signal<float> *conv_3_out = new sc_signal<float>[CHANNELS_32]();
+	sc_signal<float> *conv_4_out = new sc_signal<float>[CHANNELS_48]();
+	sc_signal<float> *conv_5_out = new sc_signal<float>[CHANNELS_48]();
+	sc_signal<float> *conv_6_out = new sc_signal<float>[CHANNELS_80]();
+	sc_signal<float> *conv_7_out = new sc_signal<float>[CHANNELS_80]();
+	sc_signal<float> *conv_8_out = new sc_signal<float>[CHANNELS_80]();
+	sc_signal<float> *conv_9_out = new sc_signal<float>[CHANNELS_80]();
+	sc_signal<float> *conv_10_out = new sc_signal<float>[CHANNELS_80]();
+	sc_signal<float> *conv_11_out = new sc_signal<float>[CHANNELS_128]();
+	sc_signal<float> *conv_12_out = new sc_signal<float>[CHANNELS_128]();
+	sc_signal<float> *conv_13_out = new sc_signal<float>[CHANNELS_128]();
+	sc_signal<float> *conv_14_out = new sc_signal<float>[CHANNELS_128]();
+	sc_signal<float> *conv_15_out = new sc_signal<float>[CHANNELS_128]();
+	sc_signal<float> *linear_1_out = new sc_signal<float>[INPUT_LINEAR_2]();
+	sc_signal<float> *linear_2_out = new sc_signal<float>[INPUT_LINEAR_3]();
+	sc_signal<float> *linear_3_out = new sc_signal<float>[INPUT_LINEAR_4]();
+	sc_signal<float> *linear_4_out = new sc_signal<float>[OUTPUT_LINEAR]();
 
 	sc_signal<float> buff_1_out[CHANNELS_32][INPUT_SIZE];
 	sc_signal<float> buff_2_out[CHANNELS_32][INPUT_SIZE];
@@ -87,10 +87,10 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<float> buff_12_out[CHANNELS_128][INPUT_SIZE];
 	sc_signal<float> buff_13_out[CHANNELS_128][INPUT_SIZE];
 	sc_signal<float> buff_14_out[CHANNELS_128][INPUT_SIZE];
-	sc_signal<float> *buff_linear_1_out = new sc_signal<float>[INPUT_LINEAR_1];
-	sc_signal<float> *buff_linear_2_out = new sc_signal<float>[INPUT_LINEAR_2];
-	sc_signal<float> *buff_linear_3_out = new sc_signal<float>[INPUT_LINEAR_3];
-	sc_signal<float> *buff_linear_4_out = new sc_signal<float>[INPUT_LINEAR_4];
+	sc_signal<float> *buff_linear_1_out = new sc_signal<float>[INPUT_LINEAR_1]();
+	sc_signal<float> *buff_linear_2_out = new sc_signal<float>[INPUT_LINEAR_2]();
+	sc_signal<float> *buff_linear_3_out = new sc_signal<float>[INPUT_LINEAR_3]();
+	sc_signal<float> *buff_linear_4_out = new sc_signal<float>[INPUT_LINEAR_4]();
 	
 	// number generator
 	numgen Num_gen("number_generator");
@@ -615,5 +615,30 @@ int sc_main(int argc, char* argv[]) {
 	end_time = time(NULL);
 	cout << "Total time usage: " << (double)(end_time - start_time) << "s." << endl;
 //	system("pause");
+    delete []send_data1;
+    delete []conv_1_out;
+    delete []conv_2_out;
+    delete []conv_3_out;
+    delete []conv_4_out;
+    delete []conv_5_out;
+    delete []conv_6_out;
+    delete []conv_7_out;
+    delete []conv_8_out;
+    delete []conv_9_out;
+    delete []conv_10_out;
+    delete []conv_11_out;
+    delete []conv_12_out;
+    delete []conv_13_out;
+    delete []conv_14_out;
+    delete []conv_15_out;
+    delete []linear_1_out;
+    delete []linear_2_out;
+    delete []linear_3_out;
+    delete []linear_4_out;
+
+    delete []buff_linear_1_out;
+    delete []buff_linear_2_out;
+    delete []buff_linear_3_out;
+    delete []buff_linear_4_out;
 	return 0;
 }
