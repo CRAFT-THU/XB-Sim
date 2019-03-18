@@ -51,14 +51,32 @@ conv_buffer_configs = [
 	{'layer_num':14, 'image_size': 'IMAGE_SIZE_8', 'channels':'CHANNELS_128'}
 ]
 
+# linear_configs = [
+# 	{'layer_num':16, 'input_size':'INPUT_LINEAR_1', 'output_size':'INPUT_LINEAR_2'},
+# 	{'layer_num':17, 'input_size':'INPUT_LINEAR_2', 'output_size':'OUTPUT_LINEAR'}
+# ]
+#
+# linear_buffer_configs = [
+# 	{'layer_num':15, 'input_size':'CHANNELS_128', 'output_size':'INPUT_LINEAR_1'},
+# 	{'layer_num':16, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_2'}
+# ]
+
 linear_configs = [
-	{'layer_num':16, 'input_size':'INPUT_LINEAR_1', 'output_size':'INPUT_LINEAR_2'},
-	{'layer_num':17, 'input_size':'INPUT_LINEAR_2', 'output_size':'OUTPUT_LINEAR'}
+	{'layer_num':16, 'input_size':'INPUT_LINEAR_1', 'output_size':'INPUT_LINEAR_2',
+	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_512'},
+	{'layer_num':17, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_3',
+	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_4096'},
+	{'layer_num':18, 'input_size':'INPUT_LINEAR_3', 'output_size':'INPUT_LINEAR_4',
+	 'crossbar_l':'CROSSBAR_L_4608', 'crossbar_w':'CROSSBAR_W_2048'},
+	{'layer_num':19, 'input_size':'INPUT_LINEAR_4', 'output_size':'OUTPUT_LINEAR',
+	 'crossbar_l':'CROSSBAR_L_2304', 'crossbar_w':'CROSSBAR_W'}
 ]
 
 linear_buffer_configs = [
 	{'layer_num':15, 'input_size':'CHANNELS_128', 'output_size':'INPUT_LINEAR_1'},
-	{'layer_num':16, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_2'}
+	{'layer_num':16, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_2'},
+	{'layer_num':17, 'input_size':'INPUT_LINEAR_3', 'output_size':'INPUT_LINEAR_3'},
+	{'layer_num':18, 'input_size':'INPUT_LINEAR_4', 'output_size':'INPUT_LINEAR_4'}
 ]
 
 prefix = '../generated/'
@@ -137,13 +155,17 @@ for linear in range(0, linear_layes):
 				crossbar_file = 'crossbar.h',
 				layer_num = linear_configs[linear]['layer_num'],
 				input_size = linear_configs[linear]['input_size'],
-				output_size = linear_configs[linear]['output_size']))
+				output_size = linear_configs[linear]['output_size'],
+				crossbar_l = linear_configs[linear]['crossbar_l'],
+				crossbar_w = linear_configs[linear]['crossbar_w']))
 	else:
 		lines.append(tmp1.substitute(
 				crossbar_file = 'crossbar_cuda.h',
 				layer_num = linear_configs[linear]['layer_num'],
 				input_size = linear_configs[linear]['input_size'],
-				output_size = linear_configs[linear]['output_size']))
+				output_size = linear_configs[linear]['output_size'],
+				crossbar_l = linear_configs[linear]['crossbar_l'],
+				crossbar_w = linear_configs[linear]['crossbar_w'])))
 	
 	output_file.writelines(lines)
 	output_file.close()

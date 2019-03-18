@@ -19,24 +19,24 @@ SC_MODULE(stage_linear_${layer_num}) {
 
 	// read crossbar data from file
 	void init_crossbar() {
-		float* cell = new float[CROSSBAR_L*CROSSBAR_W];
+		float* cell = new float[${crossbar_l}*${crossbar_w}];
 		string filename = "./weights/weight_${layer_num}.csv";
 		ifstream inFile_x(filename.c_str(), ios::in);
-		for (int i = 0; i < CROSSBAR_L; i++) {
+		for (int i = 0; i < ${crossbar_l}; i++) {
 			string lineStr_x;
 			getline(inFile_x, lineStr_x); // read one row data
 			stringstream ss(lineStr_x);
 			string str;
-			for (int j = 0; j < CROSSBAR_W; j++) {
+			for (int j = 0; j < ${crossbar_w}; j++) {
 				// cell[i*CROSSBAR_W + j] = i * CROSSBAR_W + j;
 				getline(ss, str, ',');
 				istringstream iss(str);
 				float num;
 				iss >> num;
-				cell[i*CROSSBAR_W + j] = num;
+				cell[i*${crossbar_w} + j] = num;
 			}
 		}
-		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
+		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. "  << filename << endl;
 	}
@@ -84,20 +84,20 @@ SC_MODULE(stage_linear_${layer_num}) {
 		// DA->XB->AD
 		da dac(DA_V);
 		ad adc(AD_V);
-        float ad_buff[CROSSBAR_W] = { 0.0 };
+        float ad_buff[${crossbar_w}] = { 0.0 };
         for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-            float tmp_input[CROSSBAR_L] = { 0.0 };
-            float tmp_output[CROSSBAR_W] = { 0.0 };
+            float tmp_input[${crossbar_l}] = { 0.0 };
+            float tmp_output[${crossbar_w}] = { 0.0 };
             // lower da_width bits
             for (int j = 0; j < ${input_size}; ++j){
                 int bitnum = static_cast<int>(int(input_buff[j]) & move);
                 dac.trans(bitnum, DA_WIDTH);
-                tmp_input[CROSSBAR_L - ${input_size} + j] = float(bitnum);
+                tmp_input[${crossbar_l} - ${input_size} + j] = float(bitnum);
                 input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
             }
             cb.run(tmp_input, tmp_output, false);
             // ad and shift add
-            for (int j = 0; j < CROSSBAR_W; ++j){
+            for (int j = 0; j < ${crossbar_w}; ++j){
                 float tmp = tmp_output[j] / XB${layer_num}_I;
                 if (tmp > 1)
                 	adc.trans(1.0);
