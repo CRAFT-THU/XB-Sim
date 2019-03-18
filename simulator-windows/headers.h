@@ -32,7 +32,11 @@
 #include "generated/conv_buffer_14.h"
 #include "generated/stage_linear_16.h"
 #include "generated/stage_linear_17.h"
+#include "generated/stage_linear_18.h"
+#include "generated/stage_linear_19.h"
 #include "generated/linear_buffer_15.h"
 #include "generated/linear_buffer_16.h"
+#include "generated/linear_buffer_17.h"
+#include "generated/linear_buffer_18.h"
 
 #endif // !_HEADERS_H
