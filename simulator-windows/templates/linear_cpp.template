@@ -16,6 +16,8 @@ SC_MODULE(stage_linear_${layer_num}) {
 	sc_out<int> signal_out;
 
 	CROSSBAR cb;
+	float *input_buff;
+	float *ad_buff;
 
 	// read crossbar data from file
 	void init_crossbar() {
@@ -39,6 +41,8 @@ SC_MODULE(stage_linear_${layer_num}) {
 		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. "  << filename << endl;
+		input_buff = new float[${input_size}]();
+		ad_buff = new float[${crossbar_w}]();
 	}
 
 	// activation function default relu
@@ -51,7 +55,7 @@ SC_MODULE(stage_linear_${layer_num}) {
 	// run matrix multiply
 	void stage_linear_run() {
 		// with ad & da
-		float input_buff[${input_size}] = { 0.0 };
+		memset(input_buff, 0, sizeof(float)*${input_size});
 		float _max = 0.0;
 		for (int i = 0; i < ${input_size}; ++i){
 			input_buff[i] = input[i].read();
@@ -84,7 +88,7 @@ SC_MODULE(stage_linear_${layer_num}) {
 		// DA->XB->AD
 		da dac(DA_V);
 		ad adc(AD_V);
-        float ad_buff[${crossbar_w}] = { 0.0 };
+		memset(ad_buff, 0, sizeof(float)*${crossbar_w});
         for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
             float tmp_input[${crossbar_l}] = { 0.0 };
             float tmp_output[${crossbar_w}] = { 0.0 };
@@ -186,6 +190,8 @@ SC_MODULE(stage_linear_${layer_num}) {
 
 	~stage_linear_${layer_num}() {
 		cb.free_space();
+		delete []input_buff;
+		delete []ad_buff;
 	}
 };
 

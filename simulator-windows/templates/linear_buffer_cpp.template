@@ -14,11 +14,12 @@ SC_MODULE(linear_buffer_${layer_num}) {
 	sc_in<bool> clock_1;
 	sc_out<int> signal_out;
 
-	float buffer[${output_size}];
+	float *buffer;
 	int current;
 
 	void init() {
 		current = 0;
+		buffer = new float[${output_size}]();
 	}
 
 	void send_to_next_layer() {
@@ -46,6 +47,10 @@ SC_MODULE(linear_buffer_${layer_num}) {
 		SC_METHOD(send_to_next_layer);
 		sensitive << clock_1.neg();
 		dont_initialize();
+	}
+
+	~linear_buffer_${layer_num}() {
+		delete []buffer;
 	}
 };
 
