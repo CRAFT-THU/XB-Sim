@@ -10,13 +10,13 @@ using namespace std;
 // image size ${image_size}
 
 SC_MODULE(conv_buffer_${layer_num}) {
-	sc_in<float> input[${channels}]; // for one conv crossbar
-	sc_out<float> output[${channels}][INPUT_SIZE];
+	sc_in<float> *input; // for one conv crossbar
+	sc_out<float> **output;
 	sc_in<int> signal_in;
 	sc_in<bool> clock_1; // for data transfer
 	sc_out<int> signal_out;
 
-	float buffer[${channels}][${image_size}*KERNEL_SIZE];
+	float **buffer;
 	int in_current; // input pointer in buffer
 	int out_current; // output pointer in buffer
 	int total; // output position in one image
@@ -28,6 +28,16 @@ SC_MODULE(conv_buffer_${layer_num}) {
 		total = 0;
 		begin = false;
 		ready_num = 0;
+		input = new sc_in<float>[${channels}]();
+		output = new sc_out<float>*[${channels}];
+		for (int i = 0; i < ${channels}; ++i) {
+			output[i] = new sc_out<float>[INPUT_SIZE]();
+		}
+
+		buffer = new float*[${channels}];
+		for (int j = 0; j < ${channels}; ++j) {
+			buffer[j] = new float [${image_size}*KERNEL_SIZE]();
+		}
 	}
 
 	void send_to_next_layer() {
@@ -117,6 +127,20 @@ SC_MODULE(conv_buffer_${layer_num}) {
 		SC_METHOD(send_to_next_layer);
 		sensitive << clock_1.neg();
 		dont_initialize();
+	}
+
+	~conv_buffer_${layer_num}(){
+		delete []input;
+
+		for (int i = 0; i < ${channels}; ++i) {
+			delete []output[i];
+		}
+		delete []output;
+
+		for (int j = 0; j < ${channels}; ++j) {
+			delete []buffer[j];
+		}
+		delete []buffer;
 	}
 };
 

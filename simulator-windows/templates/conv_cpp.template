@@ -16,15 +16,18 @@ using namespace std;
 // #define POOLING_SIZE ${pooling_size}
 
 SC_MODULE(stage_conv_${layer_num}) {
-	sc_in<float> input[INPUT_SIZE*${input_channel}];
-	sc_out<float> output[${output_channel}];
+	sc_in<float> *input;
+	sc_out<float> *output;
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 
 	CROSSBAR cb;
-	float pooling_buffer[${output_channel}][${image_size}*${pooling_size}];
+	float **pooling_buffer;
 	int pooling_pointer;
 	int print;
+
+	float *input_buff;
+	float *ad_buff;
 
 	// read crossbar data from file
 	void init_crossbar() {
@@ -53,6 +56,14 @@ SC_MODULE(stage_conv_${layer_num}) {
 		// parameters initialize
 		pooling_pointer = 0;
 		print = 0;
+		input_buff = new float[${input_size}]();
+		ad_buff = new float[${crossbar_w}]();
+		input = new sc_in<float>[INPUT_SIZE*${input_channel}]();
+		output = new sc_out<float>[${output_channel}]();
+		pooling_buffer = new float*[${output_channel}];
+		for (int i = 0; i < ${output_channel}; ++i) {
+			pooling_buffer[i] = new float[${image_size}*${pooling_size}]();
+		}
 	}
 
 	// activation function default relu
@@ -102,7 +113,7 @@ SC_MODULE(stage_conv_${layer_num}) {
 	void stage_conv_run() {
 		// with ad & da
 		// read data
-		float input_buff[INPUT_SIZE*${input_channel}] = { 0.0 };
+		memset(input_buff, 0, sizeof(float)*INPUT_SIZE*${input_channel});
 		float _max = 0.0;
 		for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
 			input_buff[i] = input[i].read();
@@ -135,7 +146,7 @@ SC_MODULE(stage_conv_${layer_num}) {
 		// DA->XB->AD
 		da dac(DA_V);
 		ad adc(AD_V);
-        float ad_buff[CROSSBAR_W] = { 0.0 };
+		memset(ad_buff, 0, sizeof(float)*CROSSBAR_W);
         for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
             float tmp_input[CROSSBAR_L] = { 0.0 };
             float tmp_output[CROSSBAR_W] = { 0.0 };
@@ -233,6 +244,14 @@ SC_MODULE(stage_conv_${layer_num}) {
 
 	~stage_conv_${layer_num}() {
 		cb.free_space();
+		delete []input_buff;
+		delete []ad_buff;
+		delete []input;
+		delete []output;
+		for (int i=0; i<${output_channel}; i++){
+			delete []pooling_buffer[i];
+		}
+		delete pooling_buffer;
 	}
 };
 
