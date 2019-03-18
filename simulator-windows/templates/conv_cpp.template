@@ -56,8 +56,8 @@ SC_MODULE(stage_conv_${layer_num}) {
 		// parameters initialize
 		pooling_pointer = 0;
 		print = 0;
-		input_buff = new float[${input_size}]();
-		ad_buff = new float[${crossbar_w}]();
+		input_buff = new float[INPUT_SIZE*${input_channel}]();
+		ad_buff = new float[CROSSBAR_W]();
 		input = new sc_in<float>[INPUT_SIZE*${input_channel}]();
 		output = new sc_out<float>[${output_channel}]();
 		pooling_buffer = new float*[${output_channel}];
