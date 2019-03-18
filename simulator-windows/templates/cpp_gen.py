@@ -165,7 +165,7 @@ for linear in range(0, linear_layes):
 				input_size = linear_configs[linear]['input_size'],
 				output_size = linear_configs[linear]['output_size'],
 				crossbar_l = linear_configs[linear]['crossbar_l'],
-				crossbar_w = linear_configs[linear]['crossbar_w'])))
+				crossbar_w = linear_configs[linear]['crossbar_w']))
 	
 	output_file.writelines(lines)
 	output_file.close()
