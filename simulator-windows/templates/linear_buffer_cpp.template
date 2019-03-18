@@ -8,8 +8,8 @@ using namespace std;
 
 SC_MODULE(linear_buffer_${layer_num}) {
 	// linear buffer ${layer_num}
-	sc_in<float> input[${input_size}]; // in linear buffer ${layer_num}, upper layer is conv layer and its channels is 128
-	sc_out<float> output[${output_size}];
+	sc_in<float> *input; //[${input_size}]; // in linear buffer ${layer_num}, upper layer is conv layer and its channels is 128
+	sc_out<float> *output; //[${output_size}];
 	sc_in<int> signal_in;
 	sc_in<bool> clock_1;
 	sc_out<int> signal_out;
@@ -20,6 +20,8 @@ SC_MODULE(linear_buffer_${layer_num}) {
 	void init() {
 		current = 0;
 		buffer = new float[${output_size}]();
+		input = new sc_in<float>[${input_size}]();
+		output = new sc_out<float>[${output_size}]();
 	}
 
 	void send_to_next_layer() {
@@ -51,6 +53,8 @@ SC_MODULE(linear_buffer_${layer_num}) {
 
 	~linear_buffer_${layer_num}() {
 		delete []buffer;
+		delete []input;
+		delete []output;
 	}
 };
 

@@ -10,8 +10,8 @@
 using namespace std;
 
 SC_MODULE(stage_linear_${layer_num}) {
-	sc_in<float> input[${input_size}];
-	sc_out<float> output[${output_size}];
+	sc_in<float> *input; //[${input_size}];
+	sc_out<float> *output; //[${output_size}];
 	sc_in<int> signal_in;
 	sc_out<int> signal_out;
 
@@ -43,6 +43,8 @@ SC_MODULE(stage_linear_${layer_num}) {
 		cout << "load weights ${layer_num} complete. "  << filename << endl;
 		input_buff = new float[${input_size}]();
 		ad_buff = new float[${crossbar_w}]();
+		input = new sc_in<float>[${input_size}]();
+		output = new sc_out<float>[${output_size}]();
 	}
 
 	// activation function default relu
@@ -192,6 +194,8 @@ SC_MODULE(stage_linear_${layer_num}) {
 		cb.free_space();
 		delete []input_buff;
 		delete []ad_buff;
+		delete []input;
+		delete []output;
 	}
 };
 
