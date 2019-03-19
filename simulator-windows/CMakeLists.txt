@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fopenmp")
 if(${USE_CUDA} STREQUAL "on")
 	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS})
 endif(${USE_CUDA} STREQUAL "on")
-
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,999999")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp -I/usr/local/opt/libomp/include -L/usr/local/opt/libomp/lib -lomp ")
 
 if(${USE_CUDA} STREQUAL "on")
