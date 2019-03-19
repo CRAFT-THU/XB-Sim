@@ -562,7 +562,7 @@ int sc_main(int argc, char* argv[]) {
 	// linear buffer 4
 	linear_buffer_18 linear_buff_4("linear_buffer_18");
 	for (int j = 0; j < INPUT_LINEAR_4; j++) {
-		linear_buff_4.input[j](linear_4_out[j]);
+		linear_buff_4.input[j](linear_3_out[j]);
 	}
 	for (int j = 0; j < INPUT_LINEAR_4; j++) {
 		linear_buff_4.output[j](buff_linear_4_out[j]);
