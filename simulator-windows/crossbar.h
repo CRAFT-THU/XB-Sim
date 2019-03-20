@@ -20,6 +20,9 @@ typedef struct Crossbar
     int CB_n;
     float *CB_cell;
     float *CB_std;
+    std::default_random_engine eng;
+
+
     void init(float *CB_cells, int n, int l, int w)
     {
         CB_l = l;
@@ -104,6 +107,7 @@ typedef struct Crossbar
     void MatrixMul(float *input, float *CB_cells, float *output, int w, int l)
     {
         int i = 0;
+        std::normal_distribution<float> norm(0, 1);
 #pragma omp parallel for private(i) //shared(w, l)
         for (i = 0; i < w; i++){
             float tmp = 0;
@@ -111,7 +115,8 @@ typedef struct Crossbar
             int j = 0;
 #pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cells)
             for (j = 0; j < l; j++){
-                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
+//                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
+                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * norm(eng)));
                 tmp = tmp + tmpres;
             }
             output[i] = tmp;

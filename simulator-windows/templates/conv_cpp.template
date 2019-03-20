@@ -49,6 +49,7 @@ SC_MODULE(stage_conv_${layer_num}) {
 				cell[i*CROSSBAR_W + j] = num;
 			}
 		}
+//		cout << "weight here is " << cell[CROSSBAR_W*(CROSSBAR_L-1)] << endl;
 		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. " << filename << endl;
@@ -133,6 +134,8 @@ SC_MODULE(stage_conv_${layer_num}) {
 //			n++;
         if (${layer_num} == 1)
             n = 8;
+        else if (${layer_num} == 2)
+            n = 15;
         else n = 14;
 		if (n > AD_WIDTH){
 			float para = pow(2, AD_WIDTH-n);

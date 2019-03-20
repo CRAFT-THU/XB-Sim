@@ -38,6 +38,7 @@ SC_MODULE(stage_linear_${layer_num}) {
 				cell[i*${crossbar_w} + j] = num;
 			}
 		}
+//        cout << "weight here is " << cell[${crossbar_w}*(${crossbar_l}-1)] << endl;
 		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. "  << filename << endl;
