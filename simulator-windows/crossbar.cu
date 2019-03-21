@@ -215,4 +215,6 @@ void Crossbar::run(float *input, float *output, bool use_noise) {
 
 void Crossbar::free_space() {
     // do something
+    free(CB_cell);
+    free(std_d);
 }

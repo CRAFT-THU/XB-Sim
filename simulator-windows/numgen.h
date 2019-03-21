@@ -117,7 +117,7 @@ SC_MODULE(numgen) {
 		dont_initialize();
 
 		SC_METHOD(send_data);
-		sensitive << clock_1.pos();
+		sensitive << clock_1.neg();
 		dont_initialize();
 	}
 };

@@ -17,21 +17,36 @@ linear_buffer = 4
 use_cuda = args.cuda
 
 conv_configs = [
-	{'layer_num':1, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_3', 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':2, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32', 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':3, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32', 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':4, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32', 'output_channel':'CHANNELS_48', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':5, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_48', 'output_channel':'CHANNELS_48', 'pooling_size':'POOLING_SIZE_2'},
-	{'layer_num':6, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_48', 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':7, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80', 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':8, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80', 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':9, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80', 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':10, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80', 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_2'},
-	{'layer_num':11, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_80', 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':12, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128', 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':13, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128', 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':14, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128', 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
-	{'layer_num':15, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128', 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_8'}
+	{'layer_num':1, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_3',
+	 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':2, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32',
+	 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':3, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32',
+	 'output_channel':'CHANNELS_32', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':4, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_32',
+	 'output_channel':'CHANNELS_48', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':5, 'image_size': 'IMAGE_SIZE_32', 'input_channel':'CHANNELS_48',
+	 'output_channel':'CHANNELS_48', 'pooling_size':'POOLING_SIZE_2'},
+	{'layer_num':6, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_48',
+	 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':7, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80',
+	 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':8, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80',
+	 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':9, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80',
+	 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':10, 'image_size': 'IMAGE_SIZE_16', 'input_channel':'CHANNELS_80',
+	 'output_channel':'CHANNELS_80', 'pooling_size':'POOLING_SIZE_2'},
+	{'layer_num':11, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_80',
+	 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':12, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128',
+	 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':13, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128',
+	 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':14, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128',
+	 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_1'},
+	{'layer_num':15, 'image_size': 'IMAGE_SIZE_8', 'input_channel':'CHANNELS_128',
+	 'output_channel':'CHANNELS_128', 'pooling_size':'POOLING_SIZE_8'}
 ]
 
 conv_buffer_configs = [
@@ -63,13 +78,16 @@ conv_buffer_configs = [
 
 linear_configs = [
 	{'layer_num':16, 'input_size':'INPUT_LINEAR_1', 'output_size':'INPUT_LINEAR_2',
-	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_512'},
+	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_512', 'weight_offset':'(15*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W)'},
 	{'layer_num':17, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_3',
-	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_4096'},
+	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_4096',
+	 'weight_offset':'(16*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512)'},
 	{'layer_num':18, 'input_size':'INPUT_LINEAR_3', 'output_size':'INPUT_LINEAR_4',
-	 'crossbar_l':'CROSSBAR_L_4608', 'crossbar_w':'CROSSBAR_W_2048'},
+	 'crossbar_l':'CROSSBAR_L_4608', 'crossbar_w':'CROSSBAR_W_2048',
+	 'weight_offset':'(17*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096)'},
 	{'layer_num':19, 'input_size':'INPUT_LINEAR_4', 'output_size':'OUTPUT_LINEAR',
-	 'crossbar_l':'CROSSBAR_L_2304', 'crossbar_w':'CROSSBAR_W'}
+	 'crossbar_l':'CROSSBAR_L_2304', 'crossbar_w':'CROSSBAR_W',
+	 'weight_offset':'((17*CROSSBAR_L+CROSSBAR_L_4608)*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096+CROSSBAR_W_2048)'}
 ]
 
 linear_buffer_configs = [
@@ -157,7 +175,8 @@ for linear in range(0, linear_layes):
 				input_size = linear_configs[linear]['input_size'],
 				output_size = linear_configs[linear]['output_size'],
 				crossbar_l = linear_configs[linear]['crossbar_l'],
-				crossbar_w = linear_configs[linear]['crossbar_w']))
+				crossbar_w = linear_configs[linear]['crossbar_w'],
+				weight_offset = linear_configs[linear]['weight_offset']))
 	else:
 		lines.append(tmp1.substitute(
 				crossbar_file = 'crossbar_cuda.h',
@@ -165,7 +184,8 @@ for linear in range(0, linear_layes):
 				input_size = linear_configs[linear]['input_size'],
 				output_size = linear_configs[linear]['output_size'],
 				crossbar_l = linear_configs[linear]['crossbar_l'],
-				crossbar_w = linear_configs[linear]['crossbar_w']))
+				crossbar_w = linear_configs[linear]['crossbar_w'],
+				weight_offset = linear_configs[linear]['weight_offset']))
 	
 	output_file.writelines(lines)
 	output_file.close()

@@ -590,6 +590,9 @@ int sc_main(int argc, char* argv[]) {
 	D.signal_in(signal_37);
 	D.signal_out(signal_38);
 
+	// init entire input array (temporarily 1 line, later will be 8 lines)
+	entire_input = new float[ENTIRE_L];
+
 	// init simulation
 	sc_start(0, SC_NS);
 
@@ -614,7 +617,8 @@ int sc_main(int argc, char* argv[]) {
 	}
 	end_time = time(NULL);
 	cout << "Total time usage: " << (double)(end_time - start_time) << "s." << endl;
-//	system("pause");
+
+	delete []entire_input;
     delete []send_data1;
     delete []conv_1_out;
     delete []conv_2_out;

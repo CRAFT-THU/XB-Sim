@@ -6,6 +6,7 @@
 #include <curand.h>
 #include <time.h>
 #include <math.h>
+#include "config.h"
 
 __global__ void CUDA_abs(float *a,float *b,int cols,int rows);
 
@@ -28,6 +29,8 @@ typedef struct Crossbar
 	int CB_l;
 	int CB_w;
     curandGenerator_t gen;
+
+    Crossbar(int n, int l, int w);
 	
 	void init(float *CB_cells, int n, int l, int w);
 
@@ -43,4 +46,6 @@ typedef struct Crossbar
 
 	void free_space();
 }CROSSBAR;
+
+CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
 #endif

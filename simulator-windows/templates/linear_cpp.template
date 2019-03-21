@@ -38,8 +38,17 @@ SC_MODULE(stage_linear_${layer_num}) {
 				cell[i*${crossbar_w} + j] = num;
 			}
 		}
-//        cout << "weight here is " << cell[${crossbar_w}*(${crossbar_l}-1)] << endl;
+        inFile_x.close();
+        cout << "weight here is " << cell[${crossbar_w}*(${crossbar_l}-1)] << endl;
 		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
+
+        // copy layer ${layer_num} weight matrix to entire_cb weight matrix
+        int start_pos = ${weight_offset};
+        for (int i = 0; i < ${crossbar_l}; i++) {
+            memcpy(entire_cb.CB_cell+start_pos+i*ENTIRE_W, cell+i*${crossbar_w}, ${crossbar_w}*sizeof(float));
+        }
+        cout << "weight here is " << entire_cb.CB_cell[start_pos+(${crossbar_l}-1)*ENTIRE_W] << endl;
+
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. "  << filename << endl;
 		input_buff = new float[${input_size}]();
@@ -113,74 +122,15 @@ SC_MODULE(stage_linear_${layer_num}) {
                 else 
                 	adc.trans(tmp);
                 int tmp_ad = int(adc.AD_out);
-                // if (tmp_ad > 0)
-                // 	tmp_ad = floor(tmp_ad + 0.5);
-                // else tmp_ad = ceil(tmp_ad - 0.5);
                 ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
-                // ad_buff[j] = (ad_buff[j] > 0) ? ad_buff[j]: 0;
-                // ad_buff[j] = (tmp_output[j]) * pow(2, i) + ad_buff[j];
             }
         }
 
-//		float ad_buff[CROSSBAR_W] = { 0.0 };
-//		int split_width = AD_WIDTH/DA_WIDTH;
-//		float tmp_input[CROSSBAR_L*AD_WIDTH/DA_WIDTH] = { 0.0 };
-//		float tmp_output[CROSSBAR_W*AD_WIDTH/DA_WIDTH] = { 0.0 };
-//		for (int i = 0; i < split_width; ++i){
-//			// lower da_width bits
-//			int j = 0;
-////#pragma omp parallel for private(j) shared(i, tmp_input, input_buff, move)
-//			for (j = 0; j < ${input_size}; ++j){
-//				int bitnum = static_cast<int>(int(input_buff[j]) & move);
-//				dac.trans(bitnum, DA_WIDTH);
-//				tmp_input[CROSSBAR_L * i + CROSSBAR_L - ${input_size} + j] = float(bitnum);
-//				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-//			}
-//		}
-//		cb.run(tmp_input, tmp_output, split_width, false);
-//		// ad and shift add
-//		for (int i = 0; i < split_width; ++i){
-//			int j = 0;
-////#pragma omp parallel for private(j) shared(i, tmp_output, ad_buff)
-//			for (j = 0; j < CROSSBAR_W; ++j){
-//				// float tmp = tmp_output[j] / XB${layer_num}_I;
-//				// if (tmp > 1)
-//				// 	adc.trans(1.0);
-//				// else {
-//				// 	adc.trans(tmp);
-//				// }
-//				// ad_buff[j] = (adc.AD_out) * pow(2, i) + ad_buff[j];
-//				ad_buff[j] = (tmp_output[i * CROSSBAR_W + j]) * pow(2, i) + ad_buff[j];
-//			}
-//		}
-
-		// for (int i = 0; i < ${input_size}; ++i)
-		// {
-		// 	if (ad_buff[i] >= pow(2, 13))
-		// 		ad_buff[i] = 255;
-		// 	else
-		// 		ad_buff[i] = (int(ad_buff[i] / 16.0) & 255);
-		// }
 		activation(ad_buff);
 		for (int i = 0; i < ${output_size}; i++) {
 			output[i].write(ad_buff[i]);
 		}
 		signal_out.write(signal_in.read());
-
-//		 without ad & da
-		// float tmp_input[CROSSBAR_L] = { 0.0 };
-		// float tmp_output[CROSSBAR_W] = { 0.0 };
-		// // read data from former layer
-		// for (int i = 0; i < ${input_size}; i++) {
-		// 	tmp_input[CROSSBAR_L-${input_size}+i] = input[i].read();
-		// }
-		// cb.run(tmp_input, tmp_output, false);
-		// activation(tmp_output);
-		// for (int i = 0; i < ${output_size}; i++) {
-		// 	output[i].write(tmp_output[i]);
-		// }
-
-		// signal_out.write(signal_in.read());
 	}
 
 	SC_CTOR(stage_linear_${layer_num}) {

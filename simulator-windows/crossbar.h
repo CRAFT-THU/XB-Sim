@@ -22,6 +22,20 @@ typedef struct Crossbar
     float *CB_std;
     std::default_random_engine eng;
 
+    Crossbar(){}
+
+    Crossbar(int n, int l, int w){
+        CB_n = n;
+        CB_l = l;
+        CB_w = w;
+        CB_cell = new float[CB_l*CB_w];
+        CB_std = new float[CB_l*CB_w];
+    }
+
+    ~Crossbar(){
+        delete []CB_cell;
+        delete []CB_std;
+    }
 
     void init(float *CB_cells, int n, int l, int w)
     {
@@ -116,7 +130,7 @@ typedef struct Crossbar
 #pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cells)
             for (j = 0; j < l; j++){
 //                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
-                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * norm(eng)));
+                float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
                 tmp = tmp + tmpres;
             }
             output[i] = tmp;
@@ -143,5 +157,7 @@ typedef struct Crossbar
         delete[] CB_std;
     }
 }CROSSBAR;
+
+CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
 
 #endif // !_CROSSBAR_H
