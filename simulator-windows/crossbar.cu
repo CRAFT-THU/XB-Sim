@@ -81,7 +81,7 @@ CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
 Crossbar::Crossbar() {}
 
 Crossbar::~Crossbar() {
-    free(CB_cell);
+    cudaFree(CB_cell);
 //    free(std_d);
     delete []input;
     delete []output;
