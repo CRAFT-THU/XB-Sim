@@ -1,5 +1,5 @@
-#ifndef crossbar_cuda
-#define crossbar_cuda
+#ifndef _CROSSBAR_CUDA_H
+#define _CROSSBAR_CUDA_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
@@ -55,4 +55,4 @@ typedef struct Crossbar
 }CROSSBAR;
 
 CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
-#endif
+#endif //_CROSSBAR_CUDA_H
