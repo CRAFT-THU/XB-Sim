@@ -199,6 +199,6 @@ typedef struct Crossbar
     }
 }CROSSBAR;
 
-CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
+extern CROSSBAR entire_cb;
 
 #endif // !_CROSSBAR_H

@@ -54,5 +54,5 @@ typedef struct Crossbar
 	void free_space();
 }CROSSBAR;
 
-CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
+extern CROSSBAR entire_cb;
 #endif //_CROSSBAR_CUDA_H
