@@ -95,6 +95,7 @@ Crossbar::Crossbar(int n, int l, int w) {
 }
 
 void Crossbar::run() {
+    bool use_noise = false;
     float *input_d, *output_d;
     cudaMalloc((void **)&input_d, CB_n * CB_l * sizeof(float));
     cudaMalloc((void **)&output_d, CB_n * CB_w * sizeof(float));
