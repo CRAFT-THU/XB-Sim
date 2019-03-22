@@ -103,9 +103,6 @@ int sc_main(int argc, char* argv[]) {
 	Num_gen.clock_1(clock_1);
 	Num_gen.signal_out(signal_0);
 
-	cb_control cb_crtl("crossbar_control");
-	cb_crtl.clock_2(clock_2);
-
 	// convolution module
 	stage_conv_1 Conv_1("conv_module_1");
 	for (int j = 0; j < INPUT_SIZE*CHANNELS_3; j++) {
@@ -613,6 +610,9 @@ int sc_main(int argc, char* argv[]) {
 	}
 	D.signal_in(signal_37);
 	D.signal_out(signal_38);
+
+	cb_control cb_crtl("crossbar_control");
+	cb_crtl.clock_2(clock_2);
 
 	// init entire input array (temporarily 1 line, later will be 8 lines)
 //	entire_input = new float[ENTIRE_L];

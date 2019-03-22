@@ -24,7 +24,6 @@ SC_MODULE(cb_control) {
 
     SC_CTOR(cb_control) {
         cout << "init entire crossbar..." << endl;
-        CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
         entire_cb.init();
 
         SC_METHOD(crossbar_compute);

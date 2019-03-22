@@ -76,6 +76,8 @@ __global__ void CUDA_MatrixMui(float *a, float *b, float *c, int cols, int rows)
     c[n_cell * rows + row] = temp;
 }
 
+CROSSBAR entire_cb(1, ENTIRE_L, ENTIRE_W);
+
 Crossbar::Crossbar() {}
 
 Crossbar::~Crossbar() {
@@ -89,9 +91,33 @@ Crossbar::Crossbar(int n, int l, int w) {
     CB_n = n;
     CB_l = l;
     CB_w = w;
-    cudaMalloc((void **)&CB_cell, CB_n * CB_l * CB_w * sizeof(float));
+//    cudaMalloc((void **)&CB_cell, CB_n * CB_l * CB_w * sizeof(float));
+    CB_cell = new float[CB_n * CB_l * CB_w];
     input = new float[CB_n * CB_l];
     output = new float[CB_n * CB_w];
+}
+
+void Crossbar::init(){
+    float* tmp_cell = new float[CB_n * CB_l * CB_w];
+    // transform cb_cell
+    for (int t = 0; t < CB_n; t++) {
+        for (int i = 0; i < CB_w; i++) {
+            for (int j = 0; j < CB_l; j++) {
+                tmp_cell[t * CB_l * CB_w + i * CB_l + j] = CB_cell[t * CB_l * CB_w + j * CB_w + i];
+            }
+        }
+    }
+
+    delete []CB_cell;
+    cudaMalloc((void **)&CB_cell, CB_n * CB_l * CB_w * sizeof(float));
+
+    cudaMemcpy(CB_cell, tmp_cell, CB_n*CB_l*CB_w*sizeof(float), cudaMemcpyHostToDevice);
+    free(tmp_cell);
+    get_std();
+    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+    clock_t time;
+    time = clock();
+    curandSetPseudoRandomGeneratorSeed(gen, (int)time);
 }
 
 void Crossbar::run() {
