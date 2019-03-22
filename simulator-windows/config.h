@@ -87,7 +87,7 @@
 #define POOLING_SIZE_2 2
 #define POOLING_SIZE_8 8
 
-float *entire_input;
+//float *entire_input;
 
 #endif // !_CONFIG_H
 

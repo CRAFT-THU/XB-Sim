@@ -3,13 +3,15 @@
 #include "numgen.h"
 #include "headers.h"
 #include "display.h"
+#include "crossbar_control.h"
 
 #include <time.h>
 
 int sc_main(int argc, char* argv[]) {
 	// define signals
-	sc_signal<bool> clock; // clock 
-	sc_signal<bool> clock_1;
+	sc_signal<bool> clock; // data generation from dataset
+	sc_signal<bool> clock_1; // data transfer and computing
+	sc_signal<bool> clock_2; // big crossbar computation synchronize
 	sc_signal<int> number; // number of input picture
 	sc_signal<int> signal_0; // signals for modules
 	sc_signal<int> signal_1;
@@ -111,6 +113,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_1.signal_in(signal_0);
 	Conv_1.signal_out(signal_1);
+	Conv_1.clock_2(clock_2);
 
 	// buffer 1
 	conv_buffer_1 buff_1("stage_buffer_1");
@@ -138,6 +141,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_2.signal_in(signal_2);
 	Conv_2.signal_out(signal_3);
+	Conv_2.clock_2(clock_2);
 
 	// buffer 2
 	conv_buffer_2 buff_2("stage_buffer_2");
@@ -165,6 +169,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_3.signal_in(signal_4);
 	Conv_3.signal_out(signal_5);
+	Conv_3.clock_2(clock_2);
 
 	// buffer 3
 	conv_buffer_3 buff_3("stage_buffer_3");
@@ -192,6 +197,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_4.signal_in(signal_6);
 	Conv_4.signal_out(signal_7);
+	Conv_4.clock_2(clock_2);
 
 	// buffer 4
 	conv_buffer_4 buff_4("stage_buffer_4");
@@ -219,6 +225,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_5.signal_in(signal_8);
 	Conv_5.signal_out(signal_9);
+	Conv_5.clock_2(clock_2);
 
 	// buffer 5
 	conv_buffer_5 buff_5("stage_buffer_5");
@@ -246,6 +253,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_6.signal_in(signal_10);
 	Conv_6.signal_out(signal_11);
+	Conv_6.clock_2(clock_2);
 
 	// buffer 6
 	conv_buffer_6 buff_6("stage_buffer_6");
@@ -273,6 +281,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_7.signal_in(signal_12);
 	Conv_7.signal_out(signal_13);
+	Conv_7.clock_2(clock_2);
 
 	// buffer 7
 	conv_buffer_7 buff_7("stage_buffer_7");
@@ -300,6 +309,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_8.signal_in(signal_14);
 	Conv_8.signal_out(signal_15);
+	Conv_8.clock_2(clock_2);
 
 	// buffer 8
 	conv_buffer_8 buff_8("stage_buffer_8");
@@ -327,6 +337,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_9.signal_in(signal_16);
 	Conv_9.signal_out(signal_17);
+	Conv_9.clock_2(clock_2);
 
 	// buffer 9
 	conv_buffer_9 buff_9("stage_buffer_9");
@@ -354,6 +365,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_10.signal_in(signal_18);
 	Conv_10.signal_out(signal_19);
+	Conv_10.clock_2(clock_2);
 
 	// buffer 10
 	conv_buffer_10 buff_10("stage_buffer_10");
@@ -381,6 +393,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_11.signal_in(signal_20);
 	Conv_11.signal_out(signal_21);
+	Conv_11.clock_2(clock_2);
 
 	// buffer 11
 	conv_buffer_11 buff_11("stage_buffer_11");
@@ -408,6 +421,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_12.signal_in(signal_22);
 	Conv_12.signal_out(signal_23);
+	Conv_12.clock_2(clock_2);
 
 	// buffer 12
 	conv_buffer_12 buff_12("stage_buffer_12");
@@ -435,6 +449,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_13.signal_in(signal_24);
 	Conv_13.signal_out(signal_25);
+	Conv_13.clock_2(clock_2);
 
 	// buffer 13
 	conv_buffer_13 buff_13("stage_buffer_13");
@@ -462,6 +477,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_14.signal_in(signal_26);
 	Conv_14.signal_out(signal_27);
+	Conv_14.clock_2(clock_2);
 
 	// buffer 14
 	conv_buffer_14 buff_14("stage_buffer_14");
@@ -489,6 +505,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	Conv_15.signal_in(signal_28);
 	Conv_15.signal_out(signal_29);
+	Conv_15.clock_2(clock_2);
 
 	// linear buffer 1
 	linear_buffer_15 linear_buff_1("linear_buffer_15");
@@ -512,6 +529,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	linear_1.signal_in(signal_30);
 	linear_1.signal_out(signal_31);
+	linear_1.clock_2(clock_2);
 
 	// linear buffer 2
 	linear_buffer_16 linear_buff_2("linear_buffer_16");
@@ -535,6 +553,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	linear_2.signal_in(signal_32);
 	linear_2.signal_out(signal_33);
+	linear_2.clock_2(clock_2);
 
 	// linear buffer 3
 	linear_buffer_17 linear_buff_3("linear_buffer_17");
@@ -558,6 +577,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	linear_3.signal_in(signal_34);
 	linear_3.signal_out(signal_35);
+	linear_3.clock_2(clock_2);
 
 	// linear buffer 4
 	linear_buffer_18 linear_buff_4("linear_buffer_18");
@@ -581,6 +601,7 @@ int sc_main(int argc, char* argv[]) {
 	}
 	linear_4.signal_in(signal_36);
 	linear_4.signal_out(signal_37);
+	linear_4.clock_2(clock_2);
 
 	// display module
 	display D("display_module");
@@ -590,14 +611,18 @@ int sc_main(int argc, char* argv[]) {
 	D.signal_in(signal_37);
 	D.signal_out(signal_38);
 
+	cb_control cb_crtl("crossbar_control");
+	cb_crtl.clock_2(clock_2);
+
 	// init entire input array (temporarily 1 line, later will be 8 lines)
-	entire_input = new float[ENTIRE_L];
+//	entire_input = new float[ENTIRE_L];
 
 	// init simulation
 	sc_start(0, SC_NS);
 
 	// simulation start
 	// clock.write(1);
+	cout << "start timing..." << endl;
 	time_t start_time, end_time;
 	start_time = time(NULL);
 	for (int i = 0; i < PICTURE_NUM; i++){
@@ -608,9 +633,14 @@ int sc_main(int argc, char* argv[]) {
 		sc_start(SIMULATE_DURATION, SC_NS);
 		//clock.write(1);
 		for (int j = 0; j < IMAGE_SIZE_32*IMAGE_SIZE_32; j++) {
-			clock_1.write(1); // run tiles
-			sc_start(SIMULATE_DURATION, SC_NS);
 			clock_1.write(0); // send data to next layer
+			sc_start(SIMULATE_DURATION, SC_NS);
+            clock_1.write(1); // run tiles
+            sc_start(SIMULATE_DURATION, SC_NS);
+
+			clock_2.write(0); // send data to next layer
+			sc_start(SIMULATE_DURATION, SC_NS);
+			clock_2.write(1); // run tiles
 			sc_start(SIMULATE_DURATION, SC_NS);
 		}
 		
@@ -618,7 +648,7 @@ int sc_main(int argc, char* argv[]) {
 	end_time = time(NULL);
 	cout << "Total time usage: " << (double)(end_time - start_time) << "s." << endl;
 
-	delete []entire_input;
+//	delete []entire_input;
     delete []send_data1;
     delete []conv_1_out;
     delete []conv_2_out;

@@ -19,15 +19,17 @@ SC_MODULE(stage_conv_${layer_num}) {
 	sc_in<float> *input;
 	sc_out<float> *output;
 	sc_in<int> signal_in;
+	sc_in<bool> clock_2; // for XB computation
 	sc_out<int> signal_out;
 
-	CROSSBAR cb;
+//	CROSSBAR cb;
 	float **pooling_buffer;
 	int pooling_pointer;
 	int print;
 
 	float *input_buff;
 	float *ad_buff;
+	bool start;
 
 	// read crossbar data from file
 	void init_crossbar() {
@@ -51,7 +53,7 @@ SC_MODULE(stage_conv_${layer_num}) {
 		}
         inFile_x.close();
 		cout << "weight here is " << cell[CROSSBAR_W*(CROSSBAR_L-1)] << endl;
-		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
+//		cb.init(cell, 1, CROSSBAR_L, CROSSBAR_W);
 
 		// copy layer ${layer_num} weight matrix to entire_cb weight matrix
 		int start_pos = (${layer_num}-1)*CROSSBAR_L*ENTIRE_W+(${layer_num}-1)*CROSSBAR_W;
@@ -62,7 +64,6 @@ SC_MODULE(stage_conv_${layer_num}) {
 
 		delete[] cell;
 		cout << "load weights ${layer_num} complete. " << filename << endl;
-		// cb.printcrossbar();
 		// parameters initialize
 		pooling_pointer = 0;
 		print = 0;
@@ -74,6 +75,7 @@ SC_MODULE(stage_conv_${layer_num}) {
 		for (int i = 0; i < ${output_channel}; ++i) {
 			pooling_buffer[i] = new float[${image_size}*${pooling_size}]();
 		}
+		start = false;
 	}
 
 	// activation function default relu
@@ -121,6 +123,9 @@ SC_MODULE(stage_conv_${layer_num}) {
 
 	// run convolution
 	void stage_conv_run() {
+
+	    start = true;
+
 		// with ad & da
 		// read data
 		memset(input_buff, 0, sizeof(float)*INPUT_SIZE*${input_channel});
@@ -140,54 +145,71 @@ SC_MODULE(stage_conv_${layer_num}) {
 		// scale input
 		int n = 0;
 
-		if (${layer_num} == 1)
-			n = 8;
-		else if (${layer_num} == 2)
-			n = 15;
-		else n = 14;
-		if (n > AD_WIDTH){
-			float para = pow(2, AD_WIDTH-n);
-			for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
-				input_buff[i] = int(input_buff[i] * para);
-				if (input_buff[i] > 255)
-					input_buff[i] = 255;
-			}
-		}
+//		if (${layer_num} == 1)
+//			n = 8;
+//		else if (${layer_num} == 2)
+//			n = 15;
+//		else n = 14;
+//		if (n > AD_WIDTH){
+//			float para = pow(2, AD_WIDTH-n);
+//			for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
+//				input_buff[i] = int(input_buff[i] * para);
+//				if (input_buff[i] > 255)
+//					input_buff[i] = 255;
+//			}
+//		}
+
+        // no DA for test
+        memcpy(entire_cb.input+(${layer_num}-1)*CROSSBAR_L+CROSSBAR_L-INPUT_SIZE*${input_channel},
+                input_buff, sizeof(float)*INPUT_SIZE*${input_channel});
 
 		// DA->XB->AD
-		da dac(DA_V);
-		ad adc(AD_V);
-		memset(ad_buff, 0, sizeof(float)*CROSSBAR_W);
-		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-			float tmp_input[CROSSBAR_L] = { 0.0 };
-			float tmp_output[CROSSBAR_W] = { 0.0 };
-			// lower da_width bits
-			for (int j = 0; j < INPUT_SIZE*${input_channel}; ++j){
-				int bitnum = static_cast<int>(int(input_buff[j]) & move);
-				dac.trans(bitnum, DA_WIDTH);
-				tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + j] = float(bitnum);
-				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-			}
-			cb.run(tmp_input, tmp_output, false);
-			// ad and shift add
-			for (int j = 0; j < CROSSBAR_W; ++j){
-				float tmp = tmp_output[j] / XB${layer_num}_I;
-				if (tmp > 1)
-					adc.trans(1.0);
-				else if (tmp < -1)
-					adc.trans(-1.0);
-				else
-					adc.trans(tmp);
-				int tmp_ad = int(adc.AD_out);
-				ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
-			}
-		}
+//		da dac(DA_V);
+//		ad adc(AD_V);
+//		memset(ad_buff, 0, sizeof(float)*CROSSBAR_W);
+//		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+//			float tmp_input[CROSSBAR_L] = { 0.0 };
+//			float tmp_output[CROSSBAR_W] = { 0.0 };
+//			// lower da_width bits
+//			for (int j = 0; j < INPUT_SIZE*${input_channel}; ++j){
+//				int bitnum = static_cast<int>(int(input_buff[j]) & move);
+//				dac.trans(bitnum, DA_WIDTH);
+//				tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + j] = float(bitnum);
+//				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+//			}
+//			cb.run(tmp_input, tmp_output, false);
+//			// ad and shift add
+//			for (int j = 0; j < CROSSBAR_W; ++j){
+//				float tmp = tmp_output[j] / XB${layer_num}_I;
+//				if (tmp > 1)
+//					adc.trans(1.0);
+//				else if (tmp < -1)
+//					adc.trans(-1.0);
+//				else
+//					adc.trans(tmp);
+//				int tmp_ad = int(adc.AD_out);
+//				ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
+//			}
+//		}
+//
+//		activation(ad_buff);
+//		add_to_pooling_buffer(ad_buff);
+//
+//		max_pooling(); // pooling size ${pooling_size}
 
-		activation(ad_buff);
-		add_to_pooling_buffer(ad_buff);
+	}
 
-		max_pooling(); // pooling size ${pooling_size}
+	// read data from crossbar and send them to next buffer layer
+    void crossbar_computation(){
+	    if (start) {
+            memcpy(ad_buff, entire_cb.output + (${layer_num} - 1) * CROSSBAR_W, sizeof(float) * CROSSBAR_W);
 
+            activation(ad_buff);
+            add_to_pooling_buffer(ad_buff);
+
+            max_pooling(); // pooling size ${pooling_size}
+			start = false;
+        }
 	}
 
 	SC_CTOR(stage_conv_${layer_num}) {
@@ -196,10 +218,14 @@ SC_MODULE(stage_conv_${layer_num}) {
 		SC_METHOD(stage_conv_run);
 		sensitive << signal_in;
 		dont_initialize();
+
+		SC_METHOD(crossbar_computation);
+		sensitive << clock_2.pos();
+		dont_initialize();
 	}
 
 	~stage_conv_${layer_num}() {
-		cb.free_space();
+//		cb.free_space();
 		delete []input_buff;
 		delete []ad_buff;
 		delete []input;

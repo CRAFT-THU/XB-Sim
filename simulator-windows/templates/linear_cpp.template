@@ -13,11 +13,13 @@ SC_MODULE(stage_linear_${layer_num}) {
 	sc_in<float> *input; //[${input_size}];
 	sc_out<float> *output; //[${output_size}];
 	sc_in<int> signal_in;
+	sc_in<bool> clock_2; // for XB computation
 	sc_out<int> signal_out;
 
-	CROSSBAR cb;
+//	CROSSBAR cb;
 	float *input_buff;
 	float *ad_buff;
+	bool start;
 
 	// read crossbar data from file
 	void init_crossbar() {
@@ -40,10 +42,10 @@ SC_MODULE(stage_linear_${layer_num}) {
 		}
         inFile_x.close();
         cout << "weight here is " << cell[${crossbar_w}*(${crossbar_l}-1)] << endl;
-		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
+//		cb.init(cell, 1, ${crossbar_l}, ${crossbar_w});
 
         // copy layer ${layer_num} weight matrix to entire_cb weight matrix
-        int start_pos = ${weight_offset};
+        int start_pos = ${length_offset}*ENTIRE_W+${width_offset};
         for (int i = 0; i < ${crossbar_l}; i++) {
             memcpy(entire_cb.CB_cell+start_pos+i*ENTIRE_W, cell+i*${crossbar_w}, ${crossbar_w}*sizeof(float));
         }
@@ -55,6 +57,7 @@ SC_MODULE(stage_linear_${layer_num}) {
 		ad_buff = new float[${crossbar_w}]();
 		input = new sc_in<float>[${input_size}]();
 		output = new sc_out<float>[${output_size}]();
+		start = false;
 	}
 
 	// activation function default relu
@@ -64,8 +67,11 @@ SC_MODULE(stage_linear_${layer_num}) {
 				tmp_input[i] = 0.0;
 	}
 
-	// run matrix multiply
+	// read data from last buffer layer and compose them to the crossbar entire input
 	void stage_linear_run() {
+
+	    start = true;
+
 		// with ad & da
 		memset(input_buff, 0, sizeof(float)*${input_size});
 		float _max = 0.0;
@@ -82,55 +88,70 @@ SC_MODULE(stage_linear_${layer_num}) {
 		}
 
 		// scale input
-		int n = 0;
-//		while (pow(2, double(n)) < _max)
-//			n++;
-        if (${layer_num} == 1)
-            n = 8;
-        else n = 14;
-		if (n > AD_WIDTH){
-			float para = pow(2, AD_WIDTH-n);
-			for (int i = 0; i < ${input_size}; ++i){
-				input_buff[i] = int(input_buff[i] * para);
-                if (input_buff[i] > 255)
-                    input_buff[i] = 255;
-			}
-		}
+//		int n = 0;
+//        if (${layer_num} == 1)
+//            n = 8;
+//        else n = 14;
+//		if (n > AD_WIDTH){
+//			float para = pow(2, AD_WIDTH-n);
+//			for (int i = 0; i < ${input_size}; ++i){
+//				input_buff[i] = int(input_buff[i] * para);
+//                if (input_buff[i] > 255)
+//                    input_buff[i] = 255;
+//			}
+//		}
 
-		// DA->XB->AD
-		da dac(DA_V);
-		ad adc(AD_V);
-		memset(ad_buff, 0, sizeof(float)*${crossbar_w});
-        for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-            float tmp_input[${crossbar_l}] = { 0.0 };
-            float tmp_output[${crossbar_w}] = { 0.0 };
-            // lower da_width bits
-            for (int j = 0; j < ${input_size}; ++j){
-                int bitnum = static_cast<int>(int(input_buff[j]) & move);
-                dac.trans(bitnum, DA_WIDTH);
-                tmp_input[${crossbar_l} - ${input_size} + j] = float(bitnum);
-                input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+		// no DA for test
+		memcpy(entire_cb.input+${length_offset}+${crossbar_l}-${input_size}, input_buff, sizeof(float)*${input_size});
+
+//		// DA->XB->AD
+//		da dac(DA_V);
+//		ad adc(AD_V);
+//		memset(ad_buff, 0, sizeof(float)*${crossbar_w});
+//        for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+//            float tmp_input[${crossbar_l}] = { 0.0 };
+//            float tmp_output[${crossbar_w}] = { 0.0 };
+//            // lower da_width bits
+//            for (int j = 0; j < ${input_size}; ++j){
+//                int bitnum = static_cast<int>(int(input_buff[j]) & move);
+//                dac.trans(bitnum, DA_WIDTH);
+//                tmp_input[${crossbar_l} - ${input_size} + j] = float(bitnum);
+//                input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+//            }
+//            cb.run(tmp_input, tmp_output, false);
+//            // ad and shift add
+//            for (int j = 0; j < ${crossbar_w}; ++j){
+//                float tmp = tmp_output[j] / XB${layer_num}_I;
+//                if (tmp > 1)
+//                	adc.trans(1.0);
+//                else if (tmp < -1)
+//                	adc.trans(-1.0);
+//                else
+//                	adc.trans(tmp);
+//                int tmp_ad = int(adc.AD_out);
+//                ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
+//            }
+//        }
+//
+//		activation(ad_buff);
+//		for (int i = 0; i < ${output_size}; i++) {
+//			output[i].write(ad_buff[i]);
+//		}
+//		signal_out.write(signal_in.read());
+	}
+
+	// read data from crossbar and send them to next buffer layer
+	void crossbar_computation(){
+	    if (start) {
+            memcpy(ad_buff, entire_cb.output + ${width_offset}, sizeof(float) * ${crossbar_w});
+
+            activation(ad_buff);
+            for (int i = 0; i < ${output_size}; i++) {
+                output[i].write(ad_buff[i]);
             }
-            cb.run(tmp_input, tmp_output, false);
-            // ad and shift add
-            for (int j = 0; j < ${crossbar_w}; ++j){
-                float tmp = tmp_output[j] / XB${layer_num}_I;
-                if (tmp > 1)
-                	adc.trans(1.0);
-                else if (tmp < -1) 
-                	adc.trans(-1.0);
-                else 
-                	adc.trans(tmp);
-                int tmp_ad = int(adc.AD_out);
-                ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
-            }
+            signal_out.write(signal_in.read());
+            start = false;
         }
-
-		activation(ad_buff);
-		for (int i = 0; i < ${output_size}; i++) {
-			output[i].write(ad_buff[i]);
-		}
-		signal_out.write(signal_in.read());
 	}
 
 	SC_CTOR(stage_linear_${layer_num}) {
@@ -139,10 +160,14 @@ SC_MODULE(stage_linear_${layer_num}) {
 		SC_METHOD(stage_linear_run);
 		sensitive << signal_in;
 		dont_initialize();
+
+		SC_METHOD(crossbar_computation);
+		sensitive << clock_2.pos();
+		dont_initialize();
 	}
 
 	~stage_linear_${layer_num}() {
-		cb.free_space();
+//		cb.free_space();
 		delete []input_buff;
 		delete []ad_buff;
 		delete []input;

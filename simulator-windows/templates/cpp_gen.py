@@ -78,16 +78,18 @@ conv_buffer_configs = [
 
 linear_configs = [
 	{'layer_num':16, 'input_size':'INPUT_LINEAR_1', 'output_size':'INPUT_LINEAR_2',
-	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_512', 'weight_offset':'(15*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W)'},
+	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_512', 'length_offset':'(15*CROSSBAR_L)',
+	 'width_offset':'(15*CROSSBAR_W)'},
 	{'layer_num':17, 'input_size':'INPUT_LINEAR_2', 'output_size':'INPUT_LINEAR_3',
 	 'crossbar_l':'CROSSBAR_L', 'crossbar_w':'CROSSBAR_W_4096',
-	 'weight_offset':'(16*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512)'},
+	 'length_offset':'(16*CROSSBAR_L)', 'width_offset':'(15*CROSSBAR_W+CROSSBAR_W_512)'},
 	{'layer_num':18, 'input_size':'INPUT_LINEAR_3', 'output_size':'INPUT_LINEAR_4',
 	 'crossbar_l':'CROSSBAR_L_4608', 'crossbar_w':'CROSSBAR_W_2048',
-	 'weight_offset':'(17*CROSSBAR_L*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096)'},
+	 'length_offset':'(17*CROSSBAR_L)', 'width_offset':'(15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096)'},
 	{'layer_num':19, 'input_size':'INPUT_LINEAR_4', 'output_size':'OUTPUT_LINEAR',
 	 'crossbar_l':'CROSSBAR_L_2304', 'crossbar_w':'CROSSBAR_W',
-	 'weight_offset':'((17*CROSSBAR_L+CROSSBAR_L_4608)*ENTIRE_W+15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096+CROSSBAR_W_2048)'}
+	 'length_offset':'(17*CROSSBAR_L+CROSSBAR_L_4608)',
+	 'width_offset':'(15*CROSSBAR_W+CROSSBAR_W_512+CROSSBAR_W_4096+CROSSBAR_W_2048)'}
 ]
 
 linear_buffer_configs = [
@@ -176,7 +178,8 @@ for linear in range(0, linear_layes):
 				output_size = linear_configs[linear]['output_size'],
 				crossbar_l = linear_configs[linear]['crossbar_l'],
 				crossbar_w = linear_configs[linear]['crossbar_w'],
-				weight_offset = linear_configs[linear]['weight_offset']))
+				length_offset = linear_configs[linear]['length_offset'],
+				width_offset = linear_configs[linear]['width_offset']))
 	else:
 		lines.append(tmp1.substitute(
 				crossbar_file = 'crossbar_cuda.h',
@@ -185,7 +188,8 @@ for linear in range(0, linear_layes):
 				output_size = linear_configs[linear]['output_size'],
 				crossbar_l = linear_configs[linear]['crossbar_l'],
 				crossbar_w = linear_configs[linear]['crossbar_w'],
-				weight_offset = linear_configs[linear]['weight_offset']))
+				length_offset = linear_configs[linear]['length_offset'],
+				width_offset = linear_configs[linear]['width_offset']))
 	
 	output_file.writelines(lines)
 	output_file.close()

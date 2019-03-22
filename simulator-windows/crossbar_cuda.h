@@ -25,12 +25,19 @@ typedef struct Crossbar
 {
 	float *CB_cell;
 	float *std_d;
+	float *input;
+	float *output;
 	int CB_n;
 	int CB_l;
 	int CB_w;
     curandGenerator_t gen;
 
+    // for big crossbar
+    Crossbar();
+    ~Crossbar();
     Crossbar(int n, int l, int w);
+    void init();
+    void run();
 	
 	void init(float *CB_cells, int n, int l, int w);
 

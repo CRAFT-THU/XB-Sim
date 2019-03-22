@@ -19,6 +19,8 @@ typedef struct Crossbar
     int CB_w;
     int CB_n;
     float *CB_cell;
+    float *input;
+    float *output;
     float *CB_std;
     std::default_random_engine eng;
 
@@ -30,11 +32,28 @@ typedef struct Crossbar
         CB_w = w;
         CB_cell = new float[CB_l*CB_w];
         CB_std = new float[CB_l*CB_w];
+        input = new float[CB_l];
+        output = new float[CB_w];
     }
 
     ~Crossbar(){
         delete []CB_cell;
         delete []CB_std;
+        delete []input;
+        delete []output;
+    }
+
+    void init(){
+        float *tmp_cells = new float[CB_l*CB_w];
+        // transform cb_cell
+        for (int i = 0; i < CB_w; i++){
+            for (int j = 0; j < CB_l; j++){
+                tmp_cells[i*CB_l + j] = CB_cell[j*CB_w + i];
+            }
+        }
+        memcpy(CB_cell, tmp_cells, sizeof(float)*CB_l*CB_w);
+        delete []tmp_cells;
+        get_std();
     }
 
     void init(float *CB_cells, int n, int l, int w)
@@ -43,6 +62,8 @@ typedef struct Crossbar
         CB_w = w;
         CB_n = n;
         CB_cell = new float[CB_l*CB_w];
+        input = new float[CB_l];
+        output = new float[CB_w];
 //		memcpy(CB_cell, CB_cells, CB_l*CB_w * sizeof(float));
         // transform cb_cell
         for (int i = 0; i < CB_w; i++){
@@ -130,12 +151,30 @@ typedef struct Crossbar
 #pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cells)
             for (j = 0; j < l; j++){
 //                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
-                float tmpres = input[j] * (CB_cells[tmp_k+j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
+                float tmpres = input[j] * (CB_cells[tmp_k+j] + (CB_std[tmp_k+j] * norm(eng)));
                 tmp = tmp + tmpres;
             }
             output[i] = tmp;
         }
+    }
 
+    void run(){
+        // crossbar computation
+        int i = 0;
+        std::normal_distribution<float> norm(0, 1);
+#pragma omp parallel for private(i) //shared(w, l)
+        for (i = 0; i < CB_w; i++){
+            float tmp = 0;
+            int tmp_k = i*CB_l;
+            int j = 0;
+#pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cell)
+            for (j = 0; j < CB_l; j++){
+//                float tmpres = input[j] * (CB_cell[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
+                float tmpres = input[j] * (CB_cell[tmp_k+j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
+                tmp = tmp + tmpres;
+            }
+            output[i] = tmp;
+        }
     }
 
     void run(float *input, float *output, bool noise=true)
@@ -153,8 +192,10 @@ typedef struct Crossbar
 
     void free_space()
     {
-        delete[] CB_cell;
-        delete[] CB_std;
+        delete []CB_cell;
+        delete []CB_std;
+        delete []input;
+        delete []output;
     }
 }CROSSBAR;
 
