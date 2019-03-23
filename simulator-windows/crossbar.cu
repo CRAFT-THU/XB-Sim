@@ -8,48 +8,28 @@
 #include <time.h>
 #include <math.h>
 
-__global__ void CUDA_abs(float *a, float *b, int cols, int rows){
-    // cols 128, rows 1152
-    int n_cell = blockIdx.x;
-    int row = blockIdx.y;
-    int col = threadIdx.x;
-    int index = n_cell * rows * cols + row * cols + col;
+__global__ void CUDA_abs(float *a, float *b){
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     b[index] = fabs(a[index]);
 }
 
-__global__ void CUDA_add(float *a, float *b, float *c, int cols, int rows){
-    // cols 128, rows 1152
-    int n_cell = blockIdx.x;
-    int row = blockIdx.y;
-    int col = threadIdx.x;
-    int index = n_cell * rows * cols + row * cols + col;
+__global__ void CUDA_add(float *a, float *b, float *c){
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     c[index] = a[index] + b[index];
 }
 
-__global__ void CUDA_mul(float *a, float b, float *c, int cols, int rows){
-    // cols 128, rows 1152
-    int n_cell = blockIdx.x;
-    int row = blockIdx.y;
-    int col = threadIdx.x;
-    int index = n_cell * rows * cols + row * cols + col;
+__global__ void CUDA_mul(float *a, float b, float *c){
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     c[index] = a[index] * b;
 }
 
-__global__ void CUDA_mmul(float *a, float *b, float *c, int cols, int rows){
-    // cols 128, rows 1152
-    int n_cell = blockIdx.x;
-    int row = blockIdx.y;
-    int col = threadIdx.x;
-    int index = n_cell * rows * cols + row * cols + col;
+__global__ void CUDA_mmul(float *a, float *b, float *c){
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     c[index] = a[index] * b[index];
 }
 
-__global__ void CUDA_shift(float *a, float b, float *c, int cols, int rows){
-    // cols 128, rows 1152
-    int n_cell = blockIdx.x;
-    int row = blockIdx.y;
-    int col = threadIdx.x;
-    int index = n_cell * rows * cols + row * cols + col;
+__global__ void CUDA_shift(float *a, float b, float *c){
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     c[index] = a[index] + b;
 }
 
@@ -126,16 +106,16 @@ void Crossbar::run() {
     cudaMalloc((void **)&output_d, CB_n * CB_w * (AD_WIDTH/DA_WIDTH) * sizeof(float));
     cudaMemcpy(input_d, input, CB_n * CB_l * (AD_WIDTH/DA_WIDTH) * sizeof(float), cudaMemcpyHostToDevice);
 
-    dim3 numBlocks(CB_n, CB_l);
-    dim3 mul_numBlocks(CB_n, CB_w);
+//    dim3 numBlocks(CB_n, CB_l);
+//    dim3 mul_numBlocks(CB_n, CB_w);
     // generate noise
     float *temp_noise, *temp_cell, *temp_2;
     cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
     cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
     cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
     get_noise(temp_noise);
-    CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_l, CB_w);
-    CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_l, CB_w);
+    CUDA_mmul<<<CB_l, CB_w>>>(temp_noise, std_d, temp_2);
+    CUDA_add<<<CB_l, CB_w>>>(CB_cell, temp_2, temp_cell);
 //    cudaMemcpy(CB_cell, temp_cell, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     // use cublas
@@ -212,35 +192,35 @@ void Crossbar::printcrossbar() {
 
 void Crossbar::get_std() {//old formula -0.0006034 * (x * 1e3) ** 2 + 0.06184 * x + 0.7240 * 1e-6
     // new formula (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 2.5
-    dim3 numBlocks(CB_n, CB_l);
+//    dim3 numBlocks(CB_n, CB_l);
     cudaMalloc((void **)&std_d, CB_n * CB_l * CB_w * sizeof(float));
     float *temp_1;
     cudaMalloc((void **)&temp_1, CB_n * CB_l * CB_w * sizeof(float));
     //cudaMemcpy(temp_1, CB_cell, CB_n*CB_l*CB_w* sizeof(float),cudaMemcpyDeviceToDevice) ;
-    CUDA_abs<<<numBlocks, CB_w>>>(CB_cell, temp_1, CB_l, CB_w);
+    CUDA_abs<<<CB_l, CB_w>>>(CB_cell, temp_1);
 
     float *temp_2;
     cudaMalloc((void **)&temp_2, CB_n * CB_l * CB_w * sizeof(float));
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 40, temp_2, CB_l, CB_w);
+    CUDA_mul<<<CB_l, CB_w>>>(temp_1, 40, temp_2);
     cudaMemcpy(temp_1, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
-    CUDA_shift<<<numBlocks, CB_w>>>(temp_1, 4, temp_2, CB_l, CB_w);
+    CUDA_shift<<<CB_l, CB_w>>>(temp_1, 4, temp_2);
     // temp_1 = temp_2 = x * 40 + 4
     cudaMemcpy(temp_1, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     float *temp_3;
     cudaMalloc((void **)&temp_3, CB_n * CB_l * CB_w * sizeof(float));
     // temp_3 = (x * 40 + 4) ** 2
-    CUDA_mmul<<<numBlocks, CB_w>>>(temp_1, temp_2, temp_3, CB_l, CB_w);
+    CUDA_mmul<<<CB_l, CB_w>>>(temp_1, temp_2, temp_3);
     // temp_1 = -0.0006034 * (x * 40 + 4) ** 2
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_3, -0.0006034, temp_1, CB_l, CB_w);
+    CUDA_mul<<<CB_l, CB_w>>>(temp_3, -0.0006034, temp_1);
     // temp_3 = 0.06184 * (x * 40 + 4)
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_2, 0.06184, temp_3, CB_l, CB_w);
+    CUDA_mul<<<CB_l, CB_w>>>(temp_2, 0.06184, temp_3);
     // temp_2 = -0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4)
-    CUDA_add<<<numBlocks, CB_w>>>(temp_1, temp_3, temp_2, CB_l, CB_w);
+    CUDA_add<<<CB_l, CB_w>>>(temp_1, temp_3, temp_2);
     // temp_1 = -0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240
-    CUDA_shift<<<numBlocks, CB_w>>>(temp_2, 0.7240, temp_1, CB_l, CB_w);
+    CUDA_shift<<<CB_l, CB_w>>>(temp_2, 0.7240, temp_1);
     // temp_2 = (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 2.5
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 2.5, temp_2, CB_l, CB_w);
+    CUDA_mul<<<CB_l, CB_w>>>(temp_1, 2.5, temp_2);
 
     cudaMemcpy(std_d, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
