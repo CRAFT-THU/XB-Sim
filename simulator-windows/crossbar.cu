@@ -134,8 +134,8 @@ void Crossbar::run() {
     cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
     cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
     get_noise(temp_noise);
-    CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_w, CB_l);
-    CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_w, CB_l);
+    CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_l, CB_w);
+    CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_l, CB_w);
 //    cudaMemcpy(CB_cell, temp_cell, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     // use cublas
@@ -217,30 +217,30 @@ void Crossbar::get_std() {//old formula -0.0006034 * (x * 1e3) ** 2 + 0.06184 * 
     float *temp_1;
     cudaMalloc((void **)&temp_1, CB_n * CB_l * CB_w * sizeof(float));
     //cudaMemcpy(temp_1, CB_cell, CB_n*CB_l*CB_w* sizeof(float),cudaMemcpyDeviceToDevice) ;
-    CUDA_abs<<<numBlocks, CB_w>>>(CB_cell, temp_1, CB_w, CB_l);
+    CUDA_abs<<<numBlocks, CB_w>>>(CB_cell, temp_1, CB_l, CB_w);
 
     float *temp_2;
     cudaMalloc((void **)&temp_2, CB_n * CB_l * CB_w * sizeof(float));
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 40, temp_2, CB_w, CB_l);
+    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 40, temp_2, CB_l, CB_w);
     cudaMemcpy(temp_1, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
-    CUDA_shift<<<numBlocks, CB_w>>>(temp_1, 4, temp_2, CB_w, CB_l);
+    CUDA_shift<<<numBlocks, CB_w>>>(temp_1, 4, temp_2, CB_l, CB_w);
     // temp_1 = temp_2 = x * 40 + 4
     cudaMemcpy(temp_1, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     float *temp_3;
     cudaMalloc((void **)&temp_3, CB_n * CB_l * CB_w * sizeof(float));
     // temp_3 = (x * 40 + 4) ** 2
-    CUDA_mmul<<<numBlocks, CB_w>>>(temp_1, temp_2, temp_3, CB_w, CB_l);
+    CUDA_mmul<<<numBlocks, CB_w>>>(temp_1, temp_2, temp_3, CB_l, CB_w);
     // temp_1 = -0.0006034 * (x * 40 + 4) ** 2
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_3, -0.0006034, temp_1, CB_w, CB_l);
+    CUDA_mul<<<numBlocks, CB_w>>>(temp_3, -0.0006034, temp_1, CB_l, CB_w);
     // temp_3 = 0.06184 * (x * 40 + 4)
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_2, 0.06184, temp_3, CB_w, CB_l);
+    CUDA_mul<<<numBlocks, CB_w>>>(temp_2, 0.06184, temp_3, CB_l, CB_w);
     // temp_2 = -0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4)
-    CUDA_add<<<numBlocks, CB_w>>>(temp_1, temp_3, temp_2, CB_w, CB_l);
+    CUDA_add<<<numBlocks, CB_w>>>(temp_1, temp_3, temp_2, CB_l, CB_w);
     // temp_1 = -0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240
-    CUDA_shift<<<numBlocks, CB_w>>>(temp_2, 0.7240, temp_1, CB_w, CB_l);
+    CUDA_shift<<<numBlocks, CB_w>>>(temp_2, 0.7240, temp_1, CB_l, CB_w);
     // temp_2 = (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 2.5
-    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 2.5, temp_2, CB_w, CB_l);
+    CUDA_mul<<<numBlocks, CB_w>>>(temp_1, 2.5, temp_2, CB_l, CB_w);
 
     cudaMemcpy(std_d, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
