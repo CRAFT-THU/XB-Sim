@@ -113,7 +113,7 @@ void Crossbar::run() {
     cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
     cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
     cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
-    get_noise(temp_noise);
+    curandGenerateNormal(gen, temp_noise, CB_n*CB_l*CB_w, 0, 1);
     CUDA_mmul<<<CB_l, CB_w>>>(temp_noise, std_d, temp_2);
     CUDA_add<<<CB_l, CB_w>>>(CB_cell, temp_2, temp_cell);
 //    cudaMemcpy(CB_cell, temp_cell, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
