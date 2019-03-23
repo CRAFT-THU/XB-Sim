@@ -79,10 +79,10 @@ SC_MODULE(stage_conv_${layer_num}) {
 	}
 
 	// activation function default relu
-	void activation(float tmp_input[]) {
+	void activation(float tmp[]) {
 		for (int i = 0; i < ${output_channel}; i++)
-			if (tmp_input[i] < 0.0)
-				tmp_input[i] = 0.0;
+			if (tmp[i] < 0.0)
+				tmp[i] = 0.0;
 	}
 
 	void add_to_pooling_buffer(float tmp_input[]) {
@@ -145,64 +145,60 @@ SC_MODULE(stage_conv_${layer_num}) {
 		// scale input
 		int n = 0;
 
-//		if (${layer_num} == 1)
-//			n = 8;
-//		else if (${layer_num} == 2)
-//			n = 15;
-//		else n = 14;
-//		if (n > AD_WIDTH){
-//			float para = pow(2, AD_WIDTH-n);
-//			for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
-//				input_buff[i] = int(input_buff[i] * para);
-//				if (input_buff[i] > 255)
-//					input_buff[i] = 255;
-//			}
-//		}
-
-        // no DA for test
-        memcpy(entire_cb.input+(${layer_num}-1)*CROSSBAR_L+CROSSBAR_L-INPUT_SIZE*${input_channel},
-                input_buff, sizeof(float)*INPUT_SIZE*${input_channel});
+		if (${layer_num} == 1)
+			n = 8;
+		else if (${layer_num} == 2)
+			n = 15;
+		else n = 14;
+		if (n > AD_WIDTH){
+			float para = pow(2, AD_WIDTH-n);
+			for (int i = 0; i < INPUT_SIZE*${input_channel}; ++i){
+				input_buff[i] = int(input_buff[i] * para);
+				if (input_buff[i] > 255)
+					input_buff[i] = 255;
+			}
+		}
 
 		// DA->XB->AD
 //		da dac(DA_V);
-//		ad adc(AD_V);
-//		memset(ad_buff, 0, sizeof(float)*CROSSBAR_W);
-//		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-//			float tmp_input[CROSSBAR_L] = { 0.0 };
-//			float tmp_output[CROSSBAR_W] = { 0.0 };
-//			// lower da_width bits
-//			for (int j = 0; j < INPUT_SIZE*${input_channel}; ++j){
-//				int bitnum = static_cast<int>(int(input_buff[j]) & move);
+        float *tmp_input = new float[INPUT_SIZE*${input_channel}]();
+		for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+			// lower da_width bits
+			for (int j = 0; j < INPUT_SIZE*${input_channel}; ++j){
+				int bitnum = static_cast<int>(int(input_buff[j]) & move);
 //				dac.trans(bitnum, DA_WIDTH);
-//				tmp_input[CROSSBAR_L - INPUT_SIZE * ${input_channel} + j] = float(bitnum);
-//				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-//			}
-//			cb.run(tmp_input, tmp_output, false);
-//			// ad and shift add
-//			for (int j = 0; j < CROSSBAR_W; ++j){
-//				float tmp = tmp_output[j] / XB${layer_num}_I;
-//				if (tmp > 1)
-//					adc.trans(1.0);
-//				else if (tmp < -1)
-//					adc.trans(-1.0);
-//				else
-//					adc.trans(tmp);
-//				int tmp_ad = int(adc.AD_out);
-//				ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
-//			}
-//		}
-//
-//		activation(ad_buff);
-//		add_to_pooling_buffer(ad_buff);
-//
-//		max_pooling(); // pooling size ${pooling_size}
-
+				tmp_input[j] = float(bitnum);
+				input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+			}
+            memcpy(entire_cb.input+ENTIRE_L*i+(${layer_num}-1)*CROSSBAR_L+CROSSBAR_L-INPUT_SIZE*${input_channel},
+                   tmp_input, sizeof(float)*INPUT_SIZE*${input_channel});
+		}
+		delete []tmp_input;
 	}
 
 	// read data from crossbar and send them to next buffer layer
     void crossbar_computation(){
 	    if (start) {
-            memcpy(ad_buff, entire_cb.output + (${layer_num} - 1) * CROSSBAR_W, sizeof(float) * CROSSBAR_W);
+            ad adc(AD_V);
+            memset(ad_buff, 0, sizeof(float)*CROSSBAR_W);
+            float *tmp_output = new float[CROSSBAR_W]();
+            for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i) {
+                memcpy(tmp_output, entire_cb.output + ENTIRE_W * i + (${layer_num} - 1) * CROSSBAR_W,
+                        sizeof(float) * CROSSBAR_W);
+                // ad and shift add
+                for (int j = 0; j < CROSSBAR_W; ++j) {
+                    float tmp = tmp_output[j] / XB${layer_num}_I;
+                    if (tmp > 1)
+                        adc.trans(1.0);
+                    else if (tmp < -1)
+                        adc.trans(-1.0);
+                    else
+                        adc.trans(tmp);
+                    int tmp_ad = int(adc.AD_out);
+                    ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
+                }
+            }
+            delete []tmp_output;
 
             activation(ad_buff);
             add_to_pooling_buffer(ad_buff);

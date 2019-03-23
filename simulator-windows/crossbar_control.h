@@ -7,8 +7,8 @@
 
 #include "systemc.h"
 #include "config.h"
-//#include "crossbar.h"
-#include "crossbar_cuda.h"
+#include "crossbar.h"
+//#include "crossbar_cuda.h"
 
 using namespace std;
 

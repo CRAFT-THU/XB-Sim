@@ -61,10 +61,10 @@ SC_MODULE(stage_linear_${layer_num}) {
 	}
 
 	// activation function default relu
-	void activation(float tmp_input[]) {
+	void activation(float tmp[]) {
 		for (int i = 0; i < ${output_size}; i++)
-			if (tmp_input[i] < 0.0)
-				tmp_input[i] = 0.0;
+			if (tmp[i] < 0.0)
+				tmp[i] = 0.0;
 	}
 
 	// read data from last buffer layer and compose them to the crossbar entire input
@@ -88,63 +88,58 @@ SC_MODULE(stage_linear_${layer_num}) {
 		}
 
 		// scale input
-//		int n = 0;
-//        if (${layer_num} == 1)
-//            n = 8;
-//        else n = 14;
-//		if (n > AD_WIDTH){
-//			float para = pow(2, AD_WIDTH-n);
-//			for (int i = 0; i < ${input_size}; ++i){
-//				input_buff[i] = int(input_buff[i] * para);
-//                if (input_buff[i] > 255)
-//                    input_buff[i] = 255;
-//			}
-//		}
+		int n = 14;
+		if (n > AD_WIDTH){
+			float para = pow(2, AD_WIDTH-n);
+			for (int i = 0; i < ${input_size}; ++i){
+				input_buff[i] = int(input_buff[i] * para);
+                if (input_buff[i] > 255)
+                    input_buff[i] = 255;
+			}
+		}
 
-		// no DA for test
-		memcpy(entire_cb.input+${length_offset}+${crossbar_l}-${input_size}, input_buff, sizeof(float)*${input_size});
-
-//		// DA->XB->AD
+		// DA->XB
 //		da dac(DA_V);
-//		ad adc(AD_V);
-//		memset(ad_buff, 0, sizeof(float)*${crossbar_w});
-//        for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
-//            float tmp_input[${crossbar_l}] = { 0.0 };
-//            float tmp_output[${crossbar_w}] = { 0.0 };
-//            // lower da_width bits
-//            for (int j = 0; j < ${input_size}; ++j){
-//                int bitnum = static_cast<int>(int(input_buff[j]) & move);
+        float *tmp_input = new float[${input_size}]();
+        for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i){
+            // lower da_width bits
+            for (int j = 0; j < ${input_size}; ++j){
+                int bitnum = static_cast<int>(int(input_buff[j]) & move);
 //                dac.trans(bitnum, DA_WIDTH);
-//                tmp_input[${crossbar_l} - ${input_size} + j] = float(bitnum);
-//                input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
-//            }
-//            cb.run(tmp_input, tmp_output, false);
-//            // ad and shift add
-//            for (int j = 0; j < ${crossbar_w}; ++j){
-//                float tmp = tmp_output[j] / XB${layer_num}_I;
-//                if (tmp > 1)
-//                	adc.trans(1.0);
-//                else if (tmp < -1)
-//                	adc.trans(-1.0);
-//                else
-//                	adc.trans(tmp);
-//                int tmp_ad = int(adc.AD_out);
-//                ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
-//            }
-//        }
-//
-//		activation(ad_buff);
-//		for (int i = 0; i < ${output_size}; i++) {
-//			output[i].write(ad_buff[i]);
-//		}
-//		signal_out.write(signal_in.read());
+                tmp_input[j] = float(bitnum);
+                input_buff[j] = input_buff[j] / pow(2, DA_WIDTH);
+            }
+            memcpy(entire_cb.input + ENTIRE_L * i + ${length_offset} + ${crossbar_l} - ${input_size},
+                   tmp_input, sizeof(float) * ${input_size});
+
+        }
+        delete []tmp_input;
 	}
 
 	// read data from crossbar and send them to next buffer layer
 	void crossbar_computation(){
+	    // XB->AD
 	    if (start) {
-            memcpy(ad_buff, entire_cb.output + ${width_offset}, sizeof(float) * ${crossbar_w});
-
+            ad adc(AD_V);
+            memset(ad_buff, 0, sizeof(float)*${crossbar_w});
+            float *tmp_output = new float[${crossbar_w}]();
+            for (int i = 0; i < AD_WIDTH/DA_WIDTH; ++i) {
+                memcpy(tmp_output, entire_cb.output + ENTIRE_W * i + ${width_offset},
+                        sizeof(float) * ${crossbar_w});
+                // ad and shift add
+                for (int j = 0; j < ${crossbar_w}; ++j) {
+                    float tmp = tmp_output[j] / XB${layer_num}_I;
+                    if (tmp > 1)
+                        adc.trans(1.0);
+                    else if (tmp < -1)
+                        adc.trans(-1.0);
+                    else
+                        adc.trans(tmp);
+                    int tmp_ad = int(adc.AD_out);
+                    ad_buff[j] = (tmp_ad) * pow(2, i) + ad_buff[j];
+                }
+            }
+            delete []tmp_output;
             activation(ad_buff);
             for (int i = 0; i < ${output_size}; i++) {
                 output[i].write(ad_buff[i]);
@@ -167,7 +162,6 @@ SC_MODULE(stage_linear_${layer_num}) {
 	}
 
 	~stage_linear_${layer_num}() {
-//		cb.free_space();
 		delete []input_buff;
 		delete []ad_buff;
 		delete []input;

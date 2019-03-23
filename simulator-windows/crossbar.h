@@ -32,8 +32,8 @@ typedef struct Crossbar
         CB_w = w;
         CB_cell = new float[CB_l*CB_w];
         CB_std = new float[CB_l*CB_w];
-        input = new float[CB_l];
-        output = new float[CB_w];
+        input = new float[CB_l*(AD_WIDTH/DA_WIDTH)];
+        output = new float[CB_w*(AD_WIDTH/DA_WIDTH)];
     }
 
     ~Crossbar(){
@@ -159,21 +159,24 @@ typedef struct Crossbar
     }
 
     void run(){
-        // crossbar computation
+        // crossbar computation for big crossbar
         int i = 0;
+        int s = 0;
         std::normal_distribution<float> norm(0, 1);
-#pragma omp parallel for private(i) //shared(w, l)
-        for (i = 0; i < CB_w; i++){
-            float tmp = 0;
-            int tmp_k = i*CB_l;
-            int j = 0;
-#pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k)//, input, CB_cell)
-            for (j = 0; j < CB_l; j++){
-//                float tmpres = input[j] * (CB_cell[tmp_k+j] + (CB_std[tmp_k+j] * mygaussrand2()));
-                float tmpres = input[j] * (CB_cell[tmp_k+j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
-                tmp = tmp + tmpres;
+        for (s = 0; s < AD_WIDTH/DA_WIDTH; s++) { // considering DA and AD
+#pragma omp parallel for private(i)
+            for (i = 0; i < CB_w; i++) {
+                float tmp = 0;
+                int tmp_k = i * CB_l;
+                int tmp_m = s * CB_l;
+                int j = 0;
+#pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k, tmp_m)
+                for (j = 0; j < CB_l; j++) {
+                    float tmpres = input[tmp_m + j] * (CB_cell[tmp_k + j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
+                    tmp = tmp + tmpres;
+                }
+                output[s * CB_w + i] = tmp;
             }
-            output[i] = tmp;
         }
     }
 
