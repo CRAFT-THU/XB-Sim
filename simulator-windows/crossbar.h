@@ -172,7 +172,7 @@ typedef struct Crossbar
                 int j = 0;
 #pragma omp parallel for private(j) reduction(+:tmp) shared(tmp_k, tmp_m)
                 for (j = 0; j < CB_l; j++) {
-                    float tmpres = input[tmp_m + j] * (CB_cell[tmp_k + j] /*+ (CB_std[tmp_k+j] * norm(eng))*/);
+                    float tmpres = input[tmp_m + j] * (CB_cell[tmp_k + j] + (CB_std[tmp_k+j] * norm(eng)));
                     tmp = tmp + tmpres;
                 }
                 output[s * CB_w + i] = tmp;

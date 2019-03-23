@@ -121,7 +121,6 @@ void Crossbar::init(){
 }
 
 void Crossbar::run() {
-    bool use_noise = false;
     float *input_d, *output_d;
     cudaMalloc((void **)&input_d, CB_n * CB_l * (AD_WIDTH/DA_WIDTH) * sizeof(float));
     cudaMalloc((void **)&output_d, CB_n * CB_w * (AD_WIDTH/DA_WIDTH) * sizeof(float));
@@ -129,36 +128,30 @@ void Crossbar::run() {
 
     dim3 numBlocks(CB_n, CB_l);
     dim3 mul_numBlocks(CB_n, CB_w);
+    // generate noise
+    float *temp_noise, *temp_cell, *temp_2;
+    cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
+    cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
+    cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
+    get_noise(temp_noise);
+    CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_w, CB_l);
+    CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_w, CB_l);
 
-    if (use_noise) {
-        float *temp_noise, *temp_cell, *temp_2;
-        cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
-        cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
-        cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
-        get_noise(temp_noise);
-        CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_w, CB_l);
-        CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_w, CB_l);
+    cudaFree(temp_noise);
+    cudaFree(temp_cell);
+    cudaFree(temp_2);
 
-        CUDA_MatrixMui<<<mul_numBlocks, 1>>>(input_d, temp_cell, output_d, CB_l, CB_w);
-
-        cudaFree(temp_noise);
-        cudaFree(temp_cell);
-        cudaFree(temp_2);
-    }
-    else {
-//        CUDA_MatrixMui<<<mul_numBlocks, 1>>>(input_d, CB_cell, output_d, CB_l, CB_w);
-
-        // use cublas
-        cublasHandle_t handle;
-        cublasCreate(&handle);
+    // use cublas
+    cublasHandle_t handle;
+    cublasCreate(&handle);
 //        float alpha = 1.0f, beta = 0.0f;
 //        cublasSgemv(handle, CUBLAS_OP_T, CB_l, CB_w, &alpha, CB_cell, CB_l, input_d, 1, &beta, output_d, 1);
-        float alpha = 1.0f, beta = 0.0f;
-        int m = AD_WIDTH/DA_WIDTH, n = CB_w, k = CB_l;
-        cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k,
-                &alpha, input_d, k, CB_cell, k, &beta, output_d, m);
-        cublasDestroy(handle);
-    }
+    float alpha = 1.0f, beta = 0.0f;
+    int m = AD_WIDTH/DA_WIDTH, n = CB_w, k = CB_l;
+    cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k,
+            &alpha, input_d, k, CB_cell, k, &beta, output_d, m);
+    cublasDestroy(handle);
+
     cudaMemcpy(output, output_d, CB_n * CB_w * (AD_WIDTH/DA_WIDTH) * sizeof(float), cudaMemcpyDeviceToHost);
     cudaFree( input_d );
     cudaFree( output_d );
