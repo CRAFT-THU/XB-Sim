@@ -136,10 +136,7 @@ void Crossbar::run() {
     get_noise(temp_noise);
     CUDA_mmul<<<numBlocks, CB_w>>>(temp_noise, std_d, temp_2, CB_w, CB_l);
     CUDA_add<<<numBlocks, CB_w>>>(CB_cell, temp_2, temp_cell, CB_w, CB_l);
-
-    cudaFree(temp_noise);
-    cudaFree(temp_cell);
-    cudaFree(temp_2);
+//    cudaMemcpy(CB_cell, temp_cell, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     // use cublas
     cublasHandle_t handle;
@@ -149,12 +146,15 @@ void Crossbar::run() {
     float alpha = 1.0f, beta = 0.0f;
     int m = AD_WIDTH/DA_WIDTH, n = CB_w, k = CB_l;
     cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k,
-            &alpha, input_d, k, CB_cell, k, &beta, output_d, m);
+            &alpha, input_d, k, temp_cell, k, &beta, output_d, m);
     cublasDestroy(handle);
 
     cudaMemcpy(output, output_d, CB_n * CB_w * (AD_WIDTH/DA_WIDTH) * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaFree( input_d );
-    cudaFree( output_d );
+    cudaFree(input_d);
+    cudaFree(output_d);
+    cudaFree(temp_noise);
+    cudaFree(temp_cell);
+    cudaFree(temp_2);
     // transpose output
     float *tmp_output = new float[CB_n * CB_w * (AD_WIDTH/DA_WIDTH)];
     for (int i = 0; i < AD_WIDTH / DA_WIDTH; ++i) {
