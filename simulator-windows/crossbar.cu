@@ -109,13 +109,13 @@ void Crossbar::run() {
 //    dim3 numBlocks(CB_n, CB_l);
 //    dim3 mul_numBlocks(CB_n, CB_w);
     // generate noise
-    float *temp_noise, *temp_cell, *temp_2;
-    cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
-    cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
-    cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
-    curandGenerateNormal(gen, temp_noise, CB_n*CB_l*CB_w, 0, 1);
-    CUDA_mmul<<<CB_l, CB_w>>>(temp_noise, std_d, temp_2);
-    CUDA_add<<<CB_l, CB_w>>>(CB_cell, temp_2, temp_cell);
+//    float *temp_noise, *temp_cell, *temp_2;
+//    cudaMalloc((void **)&temp_noise, CB_n * CB_w * CB_l * sizeof(float));
+//    cudaMalloc((void **)&temp_cell, CB_n * CB_w * CB_l * sizeof(float));
+//    cudaMalloc((void **)&temp_2, CB_n * CB_w * CB_l * sizeof(float));
+//    curandGenerateNormal(gen, temp_noise, CB_n*CB_l*CB_w, 0, 1);
+//    CUDA_mmul<<<CB_l, CB_w>>>(temp_noise, std_d, temp_2);
+//    CUDA_add<<<CB_l, CB_w>>>(CB_cell, temp_2, temp_cell);
 //    cudaMemcpy(CB_cell, temp_cell, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
     // use cublas
@@ -125,16 +125,18 @@ void Crossbar::run() {
 //        cublasSgemv(handle, CUBLAS_OP_T, CB_l, CB_w, &alpha, CB_cell, CB_l, input_d, 1, &beta, output_d, 1);
     float alpha = 1.0f, beta = 0.0f;
     int m = AD_WIDTH/DA_WIDTH, n = CB_w, k = CB_l;
+//    cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k,
+//            &alpha, input_d, k, temp_cell, k, &beta, output_d, m);
     cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, m, n, k,
-            &alpha, input_d, k, temp_cell, k, &beta, output_d, m);
+                &alpha, input_d, k, CB_cell, k, &beta, output_d, m);
     cublasDestroy(handle);
 
     cudaMemcpy(output, output_d, CB_n * CB_w * (AD_WIDTH/DA_WIDTH) * sizeof(float), cudaMemcpyDeviceToHost);
     cudaFree(input_d);
     cudaFree(output_d);
-    cudaFree(temp_noise);
-    cudaFree(temp_cell);
-    cudaFree(temp_2);
+//    cudaFree(temp_noise);
+//    cudaFree(temp_cell);
+//    cudaFree(temp_2);
     // transpose output
     float *tmp_output = new float[CB_n * CB_w * (AD_WIDTH/DA_WIDTH)];
     for (int i = 0; i < AD_WIDTH / DA_WIDTH; ++i) {
