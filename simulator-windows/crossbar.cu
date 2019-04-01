@@ -193,7 +193,7 @@ void Crossbar::printcrossbar() {
 }
 
 void Crossbar::get_std() {//old formula -0.0006034 * (x * 1e3) ** 2 + 0.06184 * x + 0.7240 * 1e-6
-    // new formula (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 2.5
+    // new formula (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 0.025
 //    dim3 numBlocks(CB_n, CB_l);
     cudaMalloc((void **)&std_d, CB_n * CB_l * CB_w * sizeof(float));
     float *temp_1;
@@ -222,7 +222,7 @@ void Crossbar::get_std() {//old formula -0.0006034 * (x * 1e3) ** 2 + 0.06184 * 
     // temp_1 = -0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240
     CUDA_shift<<<CB_l, CB_w>>>(temp_2, 0.7240, temp_1);
     // temp_2 = (-0.0006034 * (x * 40 + 4) ** 2 + 0.06184 * (x * 40 + 4) + 0.7240) * 2.5
-    CUDA_mul<<<CB_l, CB_w>>>(temp_1, 2.5, temp_2);
+    CUDA_mul<<<CB_l, CB_w>>>(temp_1, 0.025, temp_2);
 
     cudaMemcpy(std_d, temp_2, CB_n * CB_l * CB_w * sizeof(float), cudaMemcpyDeviceToDevice);
 
