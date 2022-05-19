@@ -3,6 +3,20 @@ This project is a simulator for ReRam Crossbar devices. It can be compiled using
 
 An updated version called XB-Sim-Star can be found at [CRAFT-THU/XB-Sim-Star](https://github.com/CRAFT-THU/XB-Sim-Star).
 
+When using this software, please use the following citation:
+
+```bibtex
+@ARTICLE{8676276,
+  author={Liu, He and Han, Jianhui and Zhang, Youhui},
+  journal={IEEE Computer Architecture Letters}, 
+  title={A Unified Framework for Training, Mapping and Simulation of ReRAM-Based Convolutional Neural Network Acceleration}, 
+  year={2019},
+  volume={18},
+  number={1},
+  pages={63-66},
+  doi={10.1109/LCA.2019.2908374}}
+```
+
 ### Content List
 - <a href='#Install'>Install</a>
 - <a href='#Dataset'>Dataset</a>
